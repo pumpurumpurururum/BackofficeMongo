@@ -1,0 +1,51 @@
+﻿@model BaseCms.Model.LinkedList.LinkedListSingleViewModel
+
+@{
+    var selectId = "_CMSScopeName_" + Model.PropertyName;
+    var additionalClass = Model.AdditionalClass;
+}
+<input type="text" id="@selectId" value="@((Model.Selected != null)?Model.Selected.Id:String.Empty)" name="@Model.PropertyName" @(!String.IsNullOrEmpty(additionalClass) ? "class=" + additionalClass : String.Empty) validate="@Model.Validate"  />
+<script type="text/javascript">
+    $(function () {
+        $("#@selectId").select2({
+            minimumInputLength: 1,
+            query: function (query) {
+                $.ajax(
+                    {
+                        url: '@Url.Action("ServerListFetch","Link")',
+                        data: {
+                            collectionName: '@Model.CollectionName',
+                            search: encodeURIComponent(query.term),
+                            filter: '@Model.Filter',
+                        },
+                        type: 'POST',
+                        dataType: 'json',
+                        success: function (data) {
+                            query.callback({ results: data });
+                        }
+                    });
+            },
+            placeholder: '',
+            allowClear: true,
+            width: '200',
+            @if (Model.Selected != null)
+            {
+                <text>
+            initSelection: function (element, callback) {
+                var id = '@Model.Selected.Id';
+                var text = '@Model.Selected.Name';
+
+                text = text.replace(/&quot;/g, '"');
+
+                callback({ id: id, text: text });
+            }
+            </text>
+            }
+        });
+        @if (!Model.IsEditable)
+        {
+            <text>$('#@selectId').select2('readonly', true);</text>
+        }
+    });
+
+</script>

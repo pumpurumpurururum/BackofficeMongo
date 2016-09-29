@@ -1,0 +1,96 @@
+﻿@model BaseCms.Model.Filters.CollectionFilterViewModel
+@{
+    Layout = null;
+}
+
+<label class="control-label" for="@Model.Id">@Model.Caption:</label>
+@if (Model.IsPreloaded)
+{
+    <select id="@Model.Id" name="@Model.Id" class="input-medium">
+        @if (Model.EmptyValueText != null)
+        {
+            <option value="@(String.IsNullOrEmpty(Model.EmptyValue) ? "0" : Model.EmptyValue)">@Model.EmptyValueText</option>
+        }
+        @foreach (var element in Model.PreloadedItems)
+        {
+            <option value="@element.Id">@element.Name</option>
+        }
+    </select>
+    <script type="text/javascript">
+        $(function() {
+            var select2 = $("#@Model.Id").select2();
+            
+            if (browserDetection.isIE()) {
+                select2.on("select2-open", function() {
+                    $("li.open > ul.submenu > li > a").one('click', { select2Id: this.id }, closeSelect);
+                    $("input[type=button]").one('click', { select2Id: this.id }, closeSelect);
+                });
+            }
+        });
+
+        function closeSelect(event) {
+            var select = $('#' + event.data.select2Id);
+            select.select2('close');
+        }
+    </script>
+}
+else if (string.IsNullOrEmpty(Model.RelatedId))
+{
+    <input type="hidden" id="@Model.Id" name="@Model.Id" class="input-medium"/>
+    <script type="text/javascript">
+        $(function() {
+            $("#@Model.Id").select2({
+                minimumInputLength: 1,
+                allowClear: true,
+                placeholder: '',
+                query: function(query) {
+                    $.ajax(
+                        {
+                            url: '@Url.Action("ServerListFetch", "Link")',
+                            data: {
+                                collectionName: '@Model.CollectionName',
+                                search: encodeURIComponent(query.term)                                
+                            },
+                            type: 'POST',
+                            dataType: 'json',
+                            success: function(data) {
+                                query.callback({ results: data });
+                            }
+                        });
+                }
+            });
+        });
+    </script>
+}
+else
+{
+    <input type="hidden" id="@Model.Id" name="@Model.Id" class="input-medium"/>
+    <script type="text/javascript">
+        $(function () {
+            $("#@Model.Id").select2({
+                
+                allowClear: true,
+                placeholder: '',
+                query: function (query) {
+                    $.ajax(
+                        {
+                            url: '@Url.Action("ServerListFetch", "Link")',
+                            data: {
+                                collectionName: '@Model.CollectionName',
+                                search: encodeURIComponent(query.term),
+                                filter: $("#@Model.RelatedId").select2("val")
+                            },
+                            type: 'POST',
+                            dataType: 'json',
+                            success: function (data) {
+                                query.callback({ results: data });
+                            }
+                        });
+                }
+            });
+            $("#@Model.RelatedId").on("change", function () {
+                $("#@Model.Id").select2("data", null);
+            });
+        });
+    </script>
+}

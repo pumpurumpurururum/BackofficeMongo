@@ -1,0 +1,6 @@
+﻿@model string
+@{ var guid = Guid.NewGuid(); }
+<script>tinyMceHelper.initReadOnly("#@guid.ToString()")</script>
+<div style="margin: 0 0 12px;">
+    @Html.TextArea((string)ViewBag.MetaData.PropertyName, Model, new { @class = "text-box multi-line span8 html-editor-readonly", @readonly="readonly", id=guid.ToString() })
+</div>

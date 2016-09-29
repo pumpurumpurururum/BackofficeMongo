@@ -1,0 +1,66 @@
+﻿@model BaseCms.Model.ListViewMetadataModel
+<div class="detail-view-form-actions">
+    <input type="hidden" id="linkedEntities@(Model.DataTableId)" class="input-medium"/>
+    <button class="btn btn-primary btn-mini" id="@Model.DataTableId-addbutton">Add</button>
+</div>
+
+<script>
+    $("#linkedEntities@(Model.DataTableId)").select2({
+        minimumInputLength: 1,
+        query: function (query) {
+
+            $.ajax(
+                {
+                    url: '@Url.Action("ServerLinkedListFetch", "Link")',
+                        data: {
+                            search: encodeURIComponent(query.term),
+                            collectionName: '@(Model.CollectionName)',
+                            upperIdentifier: '@(Model.UpperIdentifier)',
+                            detailViewGuid: '@(Model.DetailViewGuid)'
+                        },
+                        type: 'POST',
+                        dataType: 'json',
+                        success: function (data) {
+                            query.callback({ results: data });
+                        }
+                    });
+            },
+        initSelection: function (element, callback) {
+
+        }
+    });
+
+    $("#@(Model.DataTableId)-addbutton").click(function() {
+
+        var linkedIdentifier = $("#linkedEntities@(Model.DataTableId)").select2("val");
+
+        if (linkedIdentifier) {
+            blackout.start();
+            $.ajax({
+                url: "Detail/CreateToManyLink",
+                datatype: "json",
+                type: "post",
+                data: {
+                    collectionName: "@(Model.CollectionName)",
+                    upperIdentifier: "@(Model.UpperIdentifier)",
+                    linkedIdentifier: linkedIdentifier,
+                    detailViewGuid: '@(Model.DetailViewGuid)'
+                },
+                context: this,
+                async: false,
+                success: function(result) {
+                    if (result.success) {
+                        $("#linkedEntities@(Model.DataTableId)").select2("val", null);
+                        @(Model.DataTableName).fnReloadAjax("@Html.Raw(Model.DataTableUrl)");
+                    } else {
+                        blackout.alert(result.error, "Error");
+                    }
+                    blackout.end();
+                },
+            });
+        }
+
+        return false;
+    });
+
+</script>

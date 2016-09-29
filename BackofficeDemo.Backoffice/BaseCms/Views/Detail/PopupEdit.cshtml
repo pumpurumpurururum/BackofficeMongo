@@ -1,0 +1,102 @@
+﻿@using BaseCms.Common
+@using BaseCms.Model
+@using BaseCms.Model.Interfaces
+@using BaseCms.Views.Detail
+@using BaseCms.Views.Detail.Interfaces
+@model PopupEditViewModel
+@{
+    var guid = Guid.NewGuid();
+
+    var metadataProvider = String.IsNullOrEmpty(Model.CustomDetailMetadataProvider) ? new DefaultDetailMetadataProvider() : InstanceCreator.CreateInstance<IMetadataProvider<IDetailMetadata>>(Model.CustomDetailMetadataProvider);
+
+    var metaData = metadataProvider.GetMetadata(Model.DataWithIdentifier.Type);
+
+    var uppperCollectionLink = metaData.Items.FirstOrDefault(x => x.LinkMetadata != null);
+
+    
+    if (uppperCollectionLink == null)
+    {
+        throw new Exception($"Collection {Model.DataWithIdentifier.Identifier.CollectionName} has no dynamic link to collection {Model.UpperCollectionName}");
+    }
+
+    var popupMarginLeft = 0;
+    if (string.IsNullOrEmpty(Model.Left))
+    {
+        if (string.IsNullOrEmpty(Model.Width))
+        {
+            popupMarginLeft = -280;
+        }
+        else
+        {
+            if (Model.Width.EndsWith("%"))
+            {
+                popupMarginLeft = Model.ScreenWidth*int.Parse(Model.Width.Replace("%", String.Empty))/-200;
+            }
+
+            if (Model.Width.EndsWith("px"))
+            {
+                popupMarginLeft = int.Parse(Model.Width.Replace("px", String.Empty))/2;
+            }
+        }
+    }
+ }
+<script>
+    $("#@(guid.ToString())").bt_validate();
+
+    function refreshHtmlEditor() {
+        // Обновляем 
+        tinymce.triggerSave();
+        return true;
+    }
+
+</script>
+<div class="modal_sabj modal_fade modal in" tabindex="-1" style="@Html.Raw(String.IsNullOrEmpty(Model.Width) ? 
+                                                                String.Empty : $"width: {Model.Width};")
+     @Html.Raw(String.IsNullOrEmpty(Model.Height) ?
+         String.Empty : $"height: {Model.Height};")
+                                      @(Model.NoScroll ? "position: absolute;" : String.Empty)
+                                      @(string.IsNullOrEmpty(Model.Top) ? String.Empty : $"top: {Model.Top};")
+                                    @(string.IsNullOrEmpty(Model.Left) ? $"left: 50%;margin-left: {popupMarginLeft}px" : $"left: {Model.Left};margin-left: 0;")">
+    <div class="modal-header">
+        <h4 class="blue bigger">@(String.IsNullOrEmpty(Model.Title) ? "Editing object" : Model.Title)</h4>
+    </div>
+    <div class="modal-body@(String.IsNullOrEmpty(Model.Height) ? " overflow-visible" : String.Empty)"@Html.Raw(String.IsNullOrEmpty(Model.Height) ? String.Empty : " style=\"height: 100%;background: white;\"")>
+        <div class="row">
+            @using (Ajax.BeginForm("Save", null, new AjaxOptions(), new {id = guid.ToString()}))
+            {
+                @Html.EditorFor(m => Model.UpperIdentifier, "Hidden", new {MetaData = uppperCollectionLink, Identifier = Model.DataWithIdentifier.Identifier.Id})
+
+                foreach (var row in metaData.Items.Where(p => !p.IsHidden).OrderBy(p => p.Order))
+                {
+                    <p></p>
+                    string str = row.Label;
+                    str = str.Replace(" ", string.Empty);
+
+                    if (str == "Name" || str == "Pictire" || str == "Link")
+                    {
+                        object item = row.GetValue(Model.DataWithIdentifier.Data);
+                        <div class="row">
+                            <div class="col-md-3 text-right">@row.Label:</div>
+                            <div class="col-md-9 text-left">@(Html.EditorFor(m => item, row.ItemType.Template, new {MetaData = row, Identifier = Model.DataWithIdentifier.Identifier.Id}))</div>
+                        </div>
+                        
+                    }
+                }
+                <input type="hidden" id="collectionName" name="collectionName" value="@Model.DataWithIdentifier.Identifier.CollectionName" />
+                <input type="hidden" id="identifier" name="identifier" value="@(Model.DataWithIdentifier.Identifier.Id == "0" ? String.Empty : Model.DataWithIdentifier.Identifier.Id)" />
+                <input type="hidden" id="detailViewGuid" name="detailViewGuid" value="@Model.DetailViewGuid" />
+                <input type="hidden" id="upperIdentifier" name="upperIdentifier" value="@Model.UpperIdentifier" />
+            }
+        </div>
+    </div>
+    <div class="modal-footer">
+        <button class="btn btn-small btn-primary popup-edit-ok" onclick="return refreshHtmlEditor();">
+            <i class="icon-ok"></i>
+            Ok
+        </button>
+        <button class="btn btn-small popup-edit-cancel">
+            <i class="icon-remove"></i>
+            Cancel
+        </button>
+    </div>
+</div>

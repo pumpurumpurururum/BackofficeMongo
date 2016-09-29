@@ -1,0 +1,60 @@
+﻿@model NewtonCMS5.Models.Filters.StringPropertyFilterViewModel
+@{
+    
+
+    var defaultValue = DateTime.Now;
+    var defValue = Model.DefaultValue;
+
+    var needToSelectDate = !String.IsNullOrEmpty(defValue);
+    
+    if (needToSelectDate)
+    {
+        if (!DateTime.TryParse(defValue, out defaultValue))
+        {
+            defaultValue = DateTime.Now;
+        }
+    }
+}
+<label for="@(Model.Id)">@Model.Caption</label>
+
+<script>
+
+
+    
+    
+
+    $('#@(Model.Id)').daterangepicker({
+        'applyClass': 'btn-sm btn-success',
+        'cancelClass': 'btn-sm btn-default'
+        
+        //format: 'YYYY/MM/DD',
+        //locale: {
+        //    applyLabel: 'Применить',
+        //    cancelLabel: 'Отменить',
+        //    fromLabel: 'От',
+        //    toLabel: 'До',
+        //    customRangeLabel: 'Custom Range',
+        //    daysOfWeek: ["Вс", "Пн", "Вт", "Ср", "Чт", "Пт", "Сб"],
+        //    monthNames: ["Январь", "Февраль", "Март", "Апрель", "Май", "Июнь", "Июль", "Август", "Сентябрь", "Октябрь", "Ноябрь", "Декабрь"],
+        //    firstDay: 1
+        //},
+    })
+	.prev().on(ace.click_event, function () {
+		$(this).next().focus();
+	});
+
+
+</script>
+
+
+
+<div class="input-group">
+	<span class="input-group-addon">
+		<i class="fa fa-calendar bigger-110"></i>
+	</span>
+
+    @Html.TextBox(Model.Id, String.Empty, new { @class = "form-control", id=Model.Id })
+</div>
+
+   
+   

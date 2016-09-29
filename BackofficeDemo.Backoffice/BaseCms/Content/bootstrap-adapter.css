@@ -1,0 +1,70 @@
+﻿input.ui-pg-input {
+    width: auto;
+    padding: 0px;
+    margin: 0px;
+    line-height: 10px;
+}
+select.ui-pg-selbox {
+    width: auto;
+    padding: 0px;
+    margin: 0px;
+    line-height: normal
+}
+
+button.close {
+    padding:8px 5px 0 0;
+    cursor: pointer;
+    background: transparent;
+    border: 0;
+    -webkit-appearance: none;
+    position: relative;
+    z-index: 99;
+}
+
+.nav-tabs > li > button.close {
+    display: none;
+}
+
+.nav-tabs > li:hover > button.close {
+    padding: 8px 5px 0 0;
+    display: block;
+}
+.nav-tabs > li > a {
+    padding-right: 24px;
+}
+.form-inline {
+    margin-bottom: 10px;
+}
+
+.border { border: 1px solid #e3e3e3; border-radius: 3px; margin: 0 0 3px 0;padding: 3px; }
+
+.no-radius {
+    -webkit-border-radius: 0;
+    border-radius: 0;
+}
+
+.list-view-grid tr {
+    cursor: pointer;
+}
+
+.select2-search input {
+    background: none;
+}
+
+.navbar .brand {
+    padding: 10px 10px 10px;
+}
+
+.modal-body {
+    max-height: inherit;
+}
+
+.controls p
+{
+    margin-top: 5px;
+    font-size: 16px;
+}
+
+.dataTable th[class*=sorting_] {
+    color: inherit;
+}

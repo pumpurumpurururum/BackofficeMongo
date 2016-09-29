@@ -1,0 +1,6 @@
+﻿if (data.indexOf('\\') > -1) data = '/Image/?edit=0&path=' + data;
+else if(data.indexOf('http:') > -1) 
+data = data + '?v=1';
+else
+data = '/Image/Temp/?edit=0&path=' + data;
+return '<div class="form-image-preview"> <img src="' + data + '&p='+ Math.random() + '" /> </div>';

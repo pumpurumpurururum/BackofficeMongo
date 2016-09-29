@@ -1,0 +1,94 @@
+﻿@using BaseCms.Views.Detail
+@model BaseCms.Model.EditableCollectionViewModel
+@{
+    var metaData = new DefaultDetailMetadataProvider().GetMetadata(Model.Type);
+    var addButtonId = Guid.NewGuid();
+    var containerId = Guid.NewGuid();
+    var templateId = Guid.NewGuid();
+    var removeButtonClass = Guid.NewGuid();
+}
+
+<div id="@containerId" class="col-md-12">
+    @for (int i = 0; i < Model.Collection.Count(); i++)
+    {
+        var keyItemMetadata = metaData.Items.First(p => p.IsKey);
+        var keyItemValue = keyItemMetadata.GetValue(Model.Collection.ToArray()[i]);
+        var blockId = Guid.NewGuid();
+        <div class="form-inline" id="@blockId">
+            @*<div class="border span10">*@
+            <div class="row col-md-10">
+                @Html.EditorFor(m => keyItemValue, "Hidden", new { MetaData = keyItemMetadata, CollectionIndex = i, CollectionName = Model.Type.Name })
+                <input type="hidden" name="@String.Format("{0}.EditableCollectionDeletedItem[{1}]", Model.Type.Name, i)" class="editable-collection-deleted" />
+                @foreach (var row in metaData.Items.Where(p => !p.IsHidden && p.IsEditable).OrderBy(p => p.Order))
+                {
+                    object item = row.GetValue(Model.Collection.ToArray()[i]);
+                    <label>@row.Label:</label>
+                    @Html.EditorFor(m => item, row.ItemType.Template, new { MetaData = row, CollectionIndex = i, CollectionName = Model.Type.Name, @class="col-md-2" })
+                }
+            </div>
+            <div class="col-md-1">
+                <button type="button" class="close @removeButtonClass" data-id="@blockId" data-toggle="tooltip" title="Remove">×</button>
+            </div>
+        </div>
+    }
+</div>
+
+@* Шаблон для добавления новых элементов коллекции. *@
+<div id="@templateId" class="hidden col-md-12" style="display:none;">
+    @{
+        var tkeyItemMetadata = metaData.Items.First(p => p.IsKey);
+        var tkeyItemValue = "";
+        var tblockId = Guid.NewGuid();
+        <div class="form-inline" id="@(tblockId)__index__" style="margin:0;">
+            <div class="row col-md-10">
+                @Html.EditorFor(m => tkeyItemValue, "Hidden", new { MetaData = tkeyItemMetadata, CollectionIndex = -9999, CollectionName = Model.Type.Name })
+                <input type="hidden" name="@String.Format("{0}.EditableCollectionDeletedItem[-9999]", Model.Type.Name)" class="editable-collection-deleted" />
+                @foreach (var row in metaData.Items.Where(p => !p.IsHidden && p.IsEditable).OrderBy(p => p.Order))
+                {
+                    object item = row.ItemType.Type.IsValueType ? Activator.CreateInstance(row.ItemType.Type) : null;
+                    <label>@row.Label:</label>
+                    @Html.EditorFor(m => item, row.ItemType.Template, new { MetaData = row, CollectionIndex = -9999, CollectionName = Model.Type.Name, @class="col-md-2" })
+                }
+            </div>
+            <div class="col-md-1">
+                <button type="button" class="close @(removeButtonClass)__index__" data-id="@(tblockId)__index__" data-toggle="tooltip" title="Remove">×</button>
+            </div>
+        </div>
+    }
+</div>
+<div style="padding: 0 0 10px 0;" class="clearfix"></div>
+<button class="btn btn-primary btn-mini" id="@addButtonId" onclick="return false;">Add</button>
+
+<script>
+    var index = @Model.Collection.Count();
+    var removeButtonClass = "@removeButtonClass";
+    var blockId = "@tblockId";
+    $(function () {
+        $("#@addButtonId").click(function () {
+            var newBlockContent = $("#@templateId").html();
+            newBlockContent = newBlockContent.replace(/\[-9999\]/g, "[" + index + "]");
+            newBlockContent = newBlockContent.replace(/__index__/g, index + "");
+            
+            $("#@containerId").append(newBlockContent);
+
+            $("." + removeButtonClass + index).click(function() {
+                var block = $("#" + $(this).attr("data-id"));
+                block.addClass("hidden");
+                block.find(".editable-collection-deleted").val(true);
+            });
+            
+            $("." + removeButtonClass + index).tooltip();
+            
+            index++;
+        });
+
+        $(".@removeButtonClass").click(function() {
+            var block = $("#" + $(this).attr("data-id"));
+            block.addClass("hidden");
+            block.find(".editable-collection-deleted").val(true);
+        });
+
+        $('.@removeButtonClass').tooltip();
+        $("#@addButtonId").tooltip();
+    });
+</script>

@@ -1,0 +1,53 @@
+﻿@using BaseCms.Views.List
+@model BaseCms.Model.ListViewModel
+
+@{
+    var metaData = new DefaultListMetadataProvider().GetMetadata(Model.Structure.Type);
+    var activeElements = metaData.Items.Where(w => !w.IsHidden).OrderBy(p => p.Order).ToList();
+    var guid = Guid.NewGuid().ToString();
+    var tableId = guid.Replace("-", "");
+
+    var dom = Model.ListViewSettings.JDataTableDom;
+}
+
+<table class="table table-striped table-bordered table-hover dataTable" id="@guid">
+    <thead>
+        <tr>
+            @foreach (var column in activeElements)
+            {
+                <th>@column.Display</th>
+            }
+        </tr>
+    </thead>
+    <tbody></tbody>
+</table>
+<div class="clearfix"></div>
+
+<script>
+    var oTable_@tableId = undefined;
+    var properties_@tableId = [
+        @foreach (var p in activeElements)
+        {
+            @Html.Raw(String.Format("\"{0}\",", p.PropertyName))
+        }
+    ];
+
+    $(document).ready(function () {
+        oTable_@tableId = $("#@guid").dataTable({
+            "sDom": "@Html.Raw(dom)",
+            "bProcessing": true,
+            "bServerSide": true,
+            "sAjaxSource": "@Html.Raw(Model.Url)",
+            "aaSorting": [[ 1, "desc" ]],
+            "aoColumnDefs": [
+                { "sClass": "hide", "aTargets": [0], },
+            ],
+            "fnDrawCallback": function(oSettings) {
+
+                oTable_@(tableId).$("tr").tooltip({
+                    selector: '[data-toggle=tooltip]'
+                });
+            }
+        });
+    });
+</script>

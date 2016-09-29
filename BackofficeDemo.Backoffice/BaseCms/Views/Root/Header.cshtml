@@ -1,0 +1,48 @@
+﻿@model BaseCms.Security.User
+<div id="navbar" class="navbar navbar-default" >
+    <script type="text/javascript">
+				try{ace.settings.check('navbar' , 'fixed')}catch(e){}
+	</script>
+    <div class="navbar-container" id="navbar-container">@*navbar-inner*@
+        <!-- #section:basics/sidebar.mobile.toggle -->
+				<button type="button" class="navbar-toggle menu-toggler pull-left" id="menu-toggler">
+					<span class="sr-only">Toggle sidebar</span>
+
+					<span class="icon-bar"></span>
+
+					<span class="icon-bar"></span>
+
+					<span class="icon-bar"></span>
+				</button>
+
+        <div class="container-fluid">
+            <ul class="nav ace-nav pull-right">
+                <li class="light-blue">
+                    <a data-toggle="dropdown" href="#" class="dropdown-toggle">
+                        <span class="user-info">
+                            <small>Welcome,</small>
+                            @Model.Login
+                        </span>
+
+                        <i class="icon-caret-down"></i>
+                    </a>
+                    <ul class="user-menu pull-right dropdown-menu dropdown-yellow dropdown-caret dropdown-closer">
+                        <li>
+                            <a href="#" onclick="$('.mk-about-system-form').modal(); return false;">
+                                <i class="icon-info-sign"></i>
+                                Info
+                            </a>
+                        </li>
+                        <li class="divider"></li>
+                        <li>
+                            <a href="@Url.Action("Logout","Login")">
+                                <i class="icon-off"></i>
+                                Exit
+                            </a>
+                        </li>
+                    </ul>
+                </li>
+            </ul>
+        </div>
+    </div>
+</div>

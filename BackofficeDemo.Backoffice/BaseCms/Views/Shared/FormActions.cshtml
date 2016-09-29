@@ -1,0 +1,27 @@
+﻿@model IEnumerable<BaseCms.Views.ActionButtons.ActionButton>
+
+@if (Model.Any())
+{
+    <div class="clearfix form-actions">
+        <div class="col-md-offset-3 col-md-9">
+            @foreach (var actionButton in Model)
+            {
+                var guid = Guid.NewGuid();
+                
+                <button id="@(guid)" class="btn @actionButton.Class" type="button">
+                    @if (!string.IsNullOrEmpty(actionButton.Icon))
+                    {
+                        <i class="@actionButton.Icon bigger-110"></i>    
+                    }
+                    @actionButton.Caption
+                </button>
+                
+                <script>
+                    $('#@(guid)').click(function() {
+                        @Html.Raw("_CMSScope_." + actionButton.CMSScopeMethod);
+                    })
+                </script>
+            }    
+        </div>
+    </div>
+}

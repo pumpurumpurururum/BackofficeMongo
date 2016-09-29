@@ -1,0 +1,14 @@
+﻿@model BaseCms.Model.Filters.StringPropertyFilterViewModel
+@{
+    Layout = null;
+}
+@{
+    var guid = "container-for-" + Guid.NewGuid(); 
+    
+    
+}
+<div id="@guid" class="pull-left filter-container form-group">
+<input type="checkbox" class="ace" id="@Model.Id" name="@Model.Id"  />
+<label class="lbl" for="@Model.Id">@Model.Caption</label>
+
+</div>

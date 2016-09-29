@@ -1,0 +1,77 @@
+﻿@using BaseCms.Views.Detail
+@model string
+
+@{
+    var additional_class = ViewBag.@class ?? "col-xs-8";
+
+    var metaData = (DetailMetadataItem)ViewBag.MetaData;
+
+    var maxLength = metaData.MaxLength;
+
+    var controlId = "_CMSScopeName_" + ViewBag.MetaData.PropertyName;
+
+    var decodedText = HttpUtility.HtmlDecode(Model);
+}
+
+@if (metaData.IsEditable)
+{
+    if (maxLength > 0)
+    {
+        @Html.TextArea((string) ViewBag.MetaData.PropertyName, decodedText, new {@class = "text-box multi-line " + additional_class, rows = 3, id = controlId, maxLength})
+        <text>
+            <script>
+                $('#@(controlId)').maxlength({
+                    alwaysShow: true,
+                    placement: 'bottom-right'
+                });
+            </script>
+        </text>
+    }
+    else
+    {
+        if (metaData.Label == "Announce")
+        {
+             @Html.TextArea((string) ViewBag.MetaData.PropertyName, decodedText, new {@class = "text-box multi-line " + additional_class, rows = 3, id = "anons"})
+        }
+        else
+        {
+            @Html.TextArea((string)ViewBag.MetaData.PropertyName, decodedText, new { @class = "text-box multi-line " + additional_class, rows = 3, id = controlId })
+        }
+
+
+    }
+}
+else
+{
+    @Html.TextArea((string)ViewBag.MetaData.PropertyName, decodedText, new { @class = "text-box multi-line " + additional_class, rows = 3, id = controlId, @readonly = "readonly" })
+}
+
+
+ <script>
+
+
+     $(document).ready(function () {
+         $('#anons').keyup(function () {
+             var $this = $(this);
+             if ($this.val().length > 460) {
+                 $this.val($this.val().substr(0, 460));
+                 bootbox.dialog({
+                     message: "Maximum 460 symbols",
+
+                     buttons: {
+                         success: {
+                             label: "Yes",
+                             className: "btn-success",
+                             callback: function () {
+                                 
+                             }
+                         }
+
+                         
+                     }
+                 });
+             }
+
+         });
+     });
+ </script>

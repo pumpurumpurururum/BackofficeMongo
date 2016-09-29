@@ -1,0 +1,49 @@
+﻿@using System.Xml
+@using System.Xml.Linq
+@using BaseCms.Views.Detail
+@model string
+
+@{
+    var additional_class = ViewBag.@class ?? "span8";
+    var contentText = "";
+    var rez = "";
+    var metaData = (DetailMetadataItem)ViewBag.MetaData;
+
+    
+    var formattedText = Model == null ? String.Empty : XDocument.Parse(Model).ToString();
+
+    int? collectionIndex = ViewBag.CollectionIndex;
+   
+
+    var controlId = "_CMSScopeName_" + (collectionIndex.HasValue ? String.Format("{0}_{1}_{2}", ViewBag.CollectionName, metaData.PropertyName, collectionIndex.Value == -9999 ? "__index__" : collectionIndex.Value.ToString()) : metaData.PropertyName);
+}
+
+
+@{
+    var document = new XmlDocument();
+    if (!string.IsNullOrEmpty(formattedText))
+    {
+        document.LoadXml(formattedText);
+   
+    
+    
+        var root = document.DocumentElement;
+        var container = root.GetElementsByTagName("name");
+        var container1 = root.GetElementsByTagName("value");
+        
+        for (int i = 0; i < container.Count; i++)
+        {
+            rez = rez + container[i].InnerText + ": " + container1[i].InnerText + "\n";
+
+        }
+
+        
+    }
+
+}
+
+
+@(metaData.IsEditable ? Html.TextArea(contentText, rez, new {@class = "text-box multi-line " + additional_class, rows = 3, id = controlId, @style="width: 777px; height: 200px;"}) : Html.TextArea((string) ViewBag.MetaData.PropertyName, rez, new {@class = "text-box multi-line " + additional_class, rows = 3, id = controlId, @readonly = "readonly", @style="width: 777px; height: 200px;"}))
+
+
+        

@@ -1,0 +1,23 @@
+﻿@using BaseCms.Views.Detail
+@model object
+@{
+    var metaData = (DetailMetadataItem)ViewBag.MetaData;
+    var upperIdentifier = ViewBag.UpperIdentifier as string;
+    var upperCollectionName = ViewBag.UpperCollectionName as string;
+    var detailViewGuid = ViewBag.DetailViewGuid as string;
+    var filterContext = ViewBag.FilterContext as string;
+    var collectionIndex = ViewBag.CollectionIndex == null ? null : ((int)ViewBag.CollectionIndex).ToString();
+
+    if (String.IsNullOrEmpty(upperIdentifier))
+    {
+        upperIdentifier = "0";
+    }
+    if (String.IsNullOrEmpty(upperCollectionName))
+    {
+        throw new Exception("Upper Collection can't be null or empty!");
+    }
+}
+
+<div class="form-horizontal editable-collection-control">
+    @Html.Action("ListView", "Detail", new { isEditable = metaData.IsEditable, collectionName = metaData.LinkMetadata.CollectionName, upperCollectionName, upperIdentifier, detailViewGuid, filterContext, listViewMetadata = metaData.ListViewMetadata, popupMetadata = metaData.PopupMetadata, collectionIndex })
+</div>

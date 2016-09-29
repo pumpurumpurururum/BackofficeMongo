@@ -1,0 +1,57 @@
+﻿@using BaseCms.Common.Validation.Attributes
+@using BaseCms.Common.Validation.Attributes.Base
+@using BaseCms.Views.Detail
+@{
+    var metaData = (DetailMetadataItem)ViewBag.MetaData;
+    
+    var validations = new List<ValidationAttribute>
+        {            
+            new RegularExpressionAttribute("^(https?:\\/\\/)?([\\w\\.\\-]+)\\.([a-z]{2,6}\\.?)(\\/[\\w\\.%-=&?\\[\\]]*)*\\/?$", errorMessage: "Некорректный url-адрес!"),
+        };
+    var htmlValidationAttribute = BootstrapValidationHelper.GetValidationHtmlAttribute(validations);
+    var additionalClass = ViewBag.@class ?? "span8";
+    
+    int? collectionIndex = ViewBag.CollectionIndex;
+    string propertyName = collectionIndex.HasValue
+                              ? String.Format("{0}.{1}[{2}]", ViewBag.CollectionName, ViewBag.MetaData.PropertyName, collectionIndex.Value)
+                              : ViewBag.MetaData.PropertyName as string;
+
+    string controlId = "_CMSScopeName_" + ViewBag.MetaData.PropertyName;
+
+    var value = ViewData.TemplateInfo.FormattedModelValue as string;
+}
+@if (!metaData.IsEditable)
+{
+    <a href="@value" target="blank">@value</a>
+    return;
+}
+else
+{
+    @Html.TextBox(propertyName, value, new { @class = "text-box single-line "+additionalClass, validate = htmlValidationAttribute, id = controlId })
+}
+&nbsp;<i id="@(controlId)_button" class="icon-eye-open icon-2x" @(String.IsNullOrEmpty(value) ? "style=display:none;" : String.Empty)></i>
+
+<script>
+    $(function () {
+        $("#link-for-@controlId").tooltip();
+        
+        $("#@(controlId)").blur(function() {
+            if ($("#@(controlId)").val().substr(0, 4) != "http" && $("#@(controlId)").val().length > 0) {
+                var urlVal = $("#@(controlId)").val();
+                $("#@(controlId)").val("http://" + urlVal);
+            }
+            var url = $("#@(controlId)").val();
+            
+            if (url.length > 0) {
+                $('#@(controlId)_button').show();
+            } else {
+                $('#@(controlId)_button').hide();
+            }
+        });
+
+        $('#@(controlId)_button').click(function () {
+            var url = $("#@(controlId)").val();
+            window.open(url);
+        });
+    } );
+</script>

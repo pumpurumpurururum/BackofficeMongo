@@ -1,0 +1,39 @@
+﻿@model BaseCms.Model.ListViewMetadataModel
+<div class="detail-view-form-actions">
+    <input type="text" id="@(Model.DataTableId)-name-add"/>
+    <button class="btn btn-primary btn-mini" id="@Model.DataTableId-add-button" onclick="return false;">Add</button>
+</div>
+<script>
+    $("#@(Model.DataTableId)-add-button").click(function() {
+        
+        if ($("#@(Model.DataTableId)-name-add").val() == undefined || $("#@(Model.DataTableId)-name-add").val().trim() === "") {
+            blackout.alert(result.error, "Field can not be empty");
+        } else {
+            blackout.start();
+            $.ajax({
+                url: "Detail/Save",
+                datatype: "json",
+                type: "post",
+                data: {
+                    collectionName: "@(Model.CollectionName)",
+                    PartnerGuid: "@(Model.UpperIdentifier)",
+                    Name: $("#@(Model.DataTableId)-name-add").val(),
+                    detailViewGuid: '@(Model.DetailViewGuid)'
+                },
+                context: this,
+                async: false,
+                success: function(result) {
+                    if (result.success) {
+                        $("#@(Model.DataTableId)-name-add").val("");
+                        @(Model.DataTableName).fnReloadAjax("@Html.Raw(Model.DataTableUrl)");
+                    } else {
+                        blackout.alert(result.error, "Error");
+                    }
+                    blackout.end();
+                }
+            });
+        }
+
+        return false;
+    });
+</script>

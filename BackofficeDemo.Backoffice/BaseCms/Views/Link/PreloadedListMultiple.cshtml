@@ -1,0 +1,22 @@
+﻿@model BaseCms.Model.LinkedList.LinkedListMultipleViewModel
+@{
+    var selectId = "_CMSScopeName_" + Model.PropertyName;
+}
+
+<select id="@selectId" name="@Model.PropertyName" multiple="multiple">
+    @foreach (var element in Model.Preloaded)
+    {
+        <option value="@element.Id" @((Model.Selected != null && Model.Selected.Any(sel => sel.Id == element.Id))?"selected='selected'":String.Empty)>@element.Name</option>
+    }
+</select>
+
+<script type="text/javascript">
+    $(document).ready(function() {
+        $("#@selectId").select2({ width: '400' });
+        
+        @if (!Model.IsEditable)
+        {
+            <text>$('#@selectId').select2('readonly', true);</text>    
+        }
+    });
+</script>

@@ -1,0 +1,19 @@
+﻿@model BaseCms.Model.LinkedList.LinkedListMultipleViewModel
+<input name="@Model.PropertyName" type="checkbox" value="" checked class="hidden"/>
+<div class="clearfix"></div>
+ <div class="form-inline">
+@foreach (var element in Model.Preloaded)
+{
+    var guid = Guid.NewGuid();
+    
+        <label class="checkbox" for="@guid.ToString()">
+            <input name="@Model.PropertyName" 
+                type="checkbox" class="ace" id="@guid.ToString()" 
+                   value="@element.Id" @(Model.IsEditable ? String.Empty : "disabled='disabled'") 
+                @((Model.Selected != null && Model.Selected.Any(p => p.Id == element.Id)) ? "checked='checked'" : String.Empty)>
+            <span class="lbl"></span>
+            @element.Name
+        </label>
+   
+}
+</div>

@@ -1,0 +1,25 @@
+﻿@using BaseCms.Views.Link
+@using BaseCms.Views.Link.Attributes
+@{
+    var guid = Guid.NewGuid();
+    var metadata = ViewBag.MetaData.DynamicLinkViewAttribute as DynamicLinkAttribute;
+}
+@if (metadata != null)
+{
+    <div id="@guid.ToString()"></div>
+    <script>
+        //TODO:?
+        @if (true)
+        {
+            @:new CMSViews.LinkToMany("@(metadata.TargetCollection)", _CMSScope_._identifier, "#@(guid.ToString())");
+        }
+        else
+        {
+            @:new CMSViews.LinkToOne("@(metadata.TargetCollection)", _CMSScope_._identifier, "#@(guid.ToString())");
+        }
+    </script>
+}
+else
+{
+    <p class="text-error">Error <b>LinkView</b>. Do not attribute properties <b>LinkViewMetadata</b>.</p>
+}

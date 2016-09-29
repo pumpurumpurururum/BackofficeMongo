@@ -1,0 +1,22 @@
+﻿@model bool?
+@using BaseCms.Views.Detail
+@{
+    var metaData = (DetailMetadataItem)ViewBag.MetaData;
+    int? collectionIndex = ViewBag.CollectionIndex;
+    string propertyName = collectionIndex.HasValue
+                              ? String.Format("{0}.{1}[{2}]", ViewBag.CollectionName, metaData.PropertyName, collectionIndex.Value)
+                              : metaData.PropertyName;
+}
+@if (metaData.IsEditable)
+{
+    <input type="checkbox" class="ace" id="@("_CMSScopeName_" + propertyName)" name="@(propertyName)" @((Model.HasValue && Model.Value) ?"checked='checked'":String.Empty) />
+    <label class="lbl" for="@("_CMSScopeName_" + propertyName)"></label>
+    <input type="hidden" id="@("_CMSScopeName_" + propertyName)_hidden" name="@(propertyName)" value="off" />
+}
+else
+{
+    <input type="checkbox" class="ace" id="@("_CMSScopeName_" + ViewBag.MetaData.PropertyName)" name="@(ViewBag.MetaData.PropertyName)" @((Model.HasValue && Model.Value) ?"checked='checked'":String.Empty) disabled="disabled" />
+    <label class="lbl" for="@("_CMSScopeName_" + ViewBag.MetaData.PropertyName)"></label>   
+}
+
+

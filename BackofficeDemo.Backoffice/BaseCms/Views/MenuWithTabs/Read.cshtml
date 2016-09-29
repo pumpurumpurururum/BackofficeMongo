@@ -1,0 +1,88 @@
+﻿@using BaseCms.DependencyResolution
+
+@using BaseCms.Manager.Interfaces
+@using BaseCms.Model
+
+@model IEnumerable<MenuWithTabsViewModel>
+
+@{
+    Layout = null;
+
+    var backofficeManager = IoC.Container.GetInstance<IBackofficeManager>();
+    var hasSidebarShortcuts = backofficeManager.GetPartials().ContainsKey("SidebarShortcuts");
+}
+
+
+<div id="sidebar" class="sidebar responsive">
+    <script type="text/javascript">
+        try { ace.settings.check('sidebar', 'fixed') } catch (e) { }
+	</script>
+    @if (hasSidebarShortcuts)
+    {
+        @Html.Partial(backofficeManager.GetPartials()["SidebarShortcuts"], Model)
+    }
+
+    <ul class="nav nav-list ">
+        @foreach (var part in Model.Where(p=>p.Visible))
+        {
+            <li>
+                <a href="#" class="dropdown-toggle">
+                    <i class="menu-icon fa @part.Icon"></i>
+                    <span class="menu-text">@part.Name</span>
+                    <b class="arrow fa fa-angle-down"></b>
+                </a>
+                <b class="arrow"></b>
+                <ul class="submenu">
+                    @foreach (var item in part.Items.Where(p=>(bool)p.Properties[MenuWithTabsViewModel.IsVisible]))
+                    {
+                        if (!(bool) item.Properties[MenuWithTabsViewModel.IsCommand])
+                        {
+                            <li class="@(((bool) @item.Properties[MenuWithTabsViewModel.IsActiveKey]) ? "active" : "")">
+                                <a href="#" onclick="_CMSScope_.createOrActivateTab('@item.Properties[MenuWithTabsViewModel.NameKey]', @item.Properties[MenuWithTabsViewModel.ItemCMSViewKey]); setMenuStyles(this); return false;">
+                                    <i class="icon-double-angle-right"></i>
+                                    @item.Properties[MenuWithTabsViewModel.NameKey]
+                                </a>
+                                <b class="arrow"></b>
+                            </li>
+                        }
+                        else
+                        {
+                            <li class="@(((bool) @item.Properties[MenuWithTabsViewModel.IsActiveKey]) ? "active" : "")">
+                                <a href="#" onclick="@item.Properties[MenuWithTabsViewModel.CommandStr]; return false;">
+                                    <i class="icon-double-angle-right"></i>
+                                    @item.Properties[MenuWithTabsViewModel.NameKey]
+                                </a>
+                                <b class="arrow"></b>
+                            </li>
+                        }
+                    }
+                </ul>
+            </li>
+        }
+    </ul><!--/.nav-list-->
+    <!-- #section:basics/sidebar.layout.minimize -->
+    <div class="sidebar-toggle sidebar-collapse" id="sidebar-collapse">
+        <i class="ace-icon fa fa-angle-double-left" data-icon1="ace-icon fa fa-angle-double-left" data-icon2="ace-icon fa fa-angle-double-right"></i>
+    </div>
+    <!-- /section:basics/sidebar.layout.minimize -->
+	<script type="text/javascript">
+		try { ace.settings.check('sidebar', 'collapsed') } catch (e) { }
+	</script>
+</div>
+
+<div class="main-content">
+    <div class="page-content">
+        <div class="page-content-area">
+			<div class="row">
+				<div class="col-xs-12">
+                </div><!-- /.col -->
+			</div><!-- /.row -->
+		</div><!-- /.page-content-area -->
+    </div><!--/#page-content-->
+</div>
+
+<script type="text/javascript">
+    $(function () {
+        _CMSScope_.createOrActivateTab('Dashboard', new CMSViews.DashboardView());
+    });
+</script>

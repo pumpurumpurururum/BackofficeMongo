@@ -1,0 +1,6 @@
+﻿if (data.indexOf('\\') > -1) data = '/Image/?edit=0&fileSuffix=_preview&path=' + data
+else data = '/Image/?edit=0&path=' + data;
+
+
+
+return '<div class="form-image-preview"> <img src="' + data + '" /> </div>';

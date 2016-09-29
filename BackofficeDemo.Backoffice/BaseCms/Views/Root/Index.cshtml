@@ -1,0 +1,243 @@
+﻿@using System.Web.Optimization
+@using BaseCms.DependencyResolution
+@using BaseCms.Manager.Interfaces
+@{
+    Layout = null;
+
+    var backofficeManager = IoC.Container.GetInstance<IBackofficeManager>();
+    var renderStyles = backofficeManager.GetStyles().ContainsKey("Root");
+    var renderScripts = backofficeManager.GetScripts().ContainsKey("Root");
+}
+
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="utf-8">
+        <title>BaseCms 0.2 Beta</title>
+        
+        <!-- For IE -->
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+
+        <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+        <meta name="description" content="">
+        <meta name="author" content="">
+        
+        <!-- Le styles -->
+        
+        <!-- Basic styles-->
+        @Styles.Render("~/BaseCms/Content/themes/ace/assets/css/bootstrap.min.css")
+        @Styles.Render("~/BaseCms/Content/themes/ace/assets/css/font-awesome.min.css")
+        
+        
+        <!--[if IE 7]>
+		  <link rel="stylesheet" href="/BaseCms/Content/themes/ace/assets/css/font-awesome-ie7.min.css" />
+        <![endif]-->
+        
+        <!--page specific plugin styles-->
+        
+        @Styles.Render("~/BaseCms/Content/themes/ace/assets/css/jquery-ui.min.css")
+        @Styles.Render("~/BaseCms/Content/themes/ace/assets/css/chosen.css")
+        @Styles.Render("~/BaseCms/Content/themes/ace/assets/css/datepicker.css")
+        @Styles.Render("~/BaseCms/Content/themes/ace/assets/css/bootstrap-timepicker.css")
+        @Styles.Render("~/BaseCms/Content/themes/ace/assets/css/daterangepicker.css")
+        @Styles.Render("~/BaseCms/Content/themes/ace/assets/css/bootstrap-datetimepicker.css")
+        
+        <!--fonts-->
+        <link href='http://fonts.googleapis.com/css?family=Open+Sans&subset=latin,cyrillic' rel='stylesheet' type='text/css'>
+        
+        <!--ace styles-->
+        
+        @Styles.Render("~/BaseCms/Content/themes/ace/assets/css/uncompressed/ace.css")
+        @Styles.Render("~/BaseCms/Content/themes/ace/assets/css/uncompressed/ace-responsive.css")
+        @Styles.Render("~/BaseCms/Content/themes/ace/assets/css/uncompressed/ace-skins.css")
+        
+        <!--[if lte IE 8]>
+		  <link rel="stylesheet" href="/BaseCms/Content/themes/ace/assets/css/ace-ie.min.css" />
+        <![endif]-->
+       
+        <!-- inline styles related to this page -->
+        
+         @*@Styles.Render("~/BaseCms/Content/themes/ace/assets/js/uncompressed/date-time/daterangepicker.js")*@
+        <!-- ace settings handler -->
+        @Styles.Render("~/BaseCms/Content/themes/ace/assets/css/datepicker.css")
+       @* @Styles.Render("~/BaseCms/Content/datepicker.css")*@
+        @Styles.Render("~/BaseCms/Content/bootstrap-timepicker.min.css")
+
+        
+       @Styles.Render("~/BaseCms/Content/themes/ace/assets/css/select2.css")
+        @Styles.Render("~/BaseCms/Content/select2-bootstrap.css")
+        @Styles.Render("~/BaseCms/Content/imgareaselect/imgareaselect-default.css")
+        
+        @Styles.Render("~/BaseCms/Content/codemirror/codemirror.css")
+        @Styles.Render("~/BaseCms/Scripts/codemirror/addon/display/fullscreen.css")
+        
+
+        @Styles.Render("~/BaseCms/Content/ace12/ace12-adapter.css")
+        @Styles.Render("~/BaseCms/Content/bootstrap-adapter.css?v=6")
+        @Styles.Render("~/BaseCms/Content/jqgrid-adapter.css")
+        
+        @Styles.Render("~/BaseCms/Content/custom-styles.css?v=6")
+        
+        @if (renderStyles)
+        {
+            foreach (var style in backofficeManager.GetStyles()["Root"])
+            {
+                @Styles.Render(style)
+            }
+        }
+        
+        <script src="~/BaseCms/Content/themes/ace/assets/js/ace-extra.min.js"></script>
+
+        <!-- HTML5 shim, for IE6-8 support of HTML5 elements -->
+        <!--[if lt IE 9]>
+            <script src="~/BaseCms/Scripts/html5shiv.js"></script>
+        <![endif]-->
+    </head>
+    <body class="no-skin">
+        @Html.Action("Header")
+        <div id="main-container" class="main-container"></div>@*container-fluid*@
+        <script type="text/javascript">
+            try {
+                ace.settings.check('main-container', 'fixed');
+            } catch (e) { }
+        </script>
+        @*<a href="#" id="btn-scroll-up" class="btn-scroll-up btn btn-small btn-inverse">
+			<i class="icon-double-angle-up icon-only bigger-110"></i>
+		</a>*@
+        <a href="#" id="btn-scroll-up" class="btn-scroll-up btn btn-sm btn-inverse">
+				<i class="ace-icon fa fa-angle-double-up icon-only bigger-110"></i>
+			</a>
+        @*<div class="modal-content hide fade" id="loading-modal">
+            <div class="modal-body">
+                Ждите...
+            </div>
+        </div>*@
+        <div class="modal fade" id="loading-modal">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-body">Wait...</div>
+        </div>
+    </div>
+</div>
+        @Html.Partial("Information")
+
+        @Html.Partial("ConfirmDialog")
+        
+        <!--basic scripts-->
+
+        <script src='~/BaseCms/Content/themes/ace/assets/js/jquery.min.js'></script>
+       
+        <script type="text/javascript">
+            if ("ontouchend" in document) document.write("<script src='~/BaseCms/Content/themes/ace/assets/js/jquery.mobile.custom.min.js'>" + "<" + "/script>");
+        </script>
+        <script src="~/BaseCms/Content/themes/ace/assets/js/bootstrap.min.js"></script>
+        <!--page specific plugin scripts-->
+        
+        
+        <!--[if lte IE 8]>
+		  <script src="~/BaseCms/Content/themes/ace/assets/js/excanvas.min.js"></script>
+		<![endif]-->
+
+        @Scripts.Render("~/BaseCms/Content/themes/ace/assets/js/jquery-ui.customnewton.js")
+        @Scripts.Render("~/BaseCms/Content/themes/ace/assets/js/jquery.ui.touch-punch.min.js")
+        <!---->
+        <!--ace scripts-->
+        @Scripts.Render("~/BaseCms/Content/themes/ace/assets/js/uncompressed/ace-elements.js")
+        @Scripts.Render("~/BaseCms/Content/themes/ace/assets/js/ace.min.js")
+        
+        <script src="https://maps.googleapis.com/maps/api/js?v=3.exp&sensor=false"></script>
+
+        @Scripts.Render("~/BaseCms/Scripts/init.js?v=5")
+        @Scripts.Render("~/BaseCms/Scripts/validation/bootstrap.validate.js?v=01")
+        @Scripts.Render("~/BaseCms/Scripts/validation/bootstrap.validate.en.js?v=01")
+        @Scripts.Render("~/BaseCms/Scripts/validation/custom.js")
+        @Scripts.Render("~/BaseCms/Scripts/bootstrap-maxlength.min.js")
+        @Scripts.Render("~/BaseCms/Content/themes/ace/assets/js/chosen.jquery.min.js")
+        @Scripts.Render("~/BaseCms/Content/themes/ace/assets/js/fuelux/fuelux.spinner.min.js")
+        <script src="~/BaseCms/Content/themes/ace/assets/js/uncompressed/fuelux/fuelux.tree.js"></script>
+        <script src="~/BaseCms/Scripts/dataSourceTree.js"></script>
+        @Scripts.Render("~/BaseCms/Content/themes/ace/assets/js/date-time/bootstrap-datepicker.min.js")
+        
+        @Scripts.Render("~/BaseCms/Content/themes/ace/assets/js/date-time/bootstrap-datepicker.min.js")
+        @Scripts.Render("~/BaseCms/Content/themes/ace/assets/js/date-time/locales/bootstrap-datepicker.ru.js")
+        @Scripts.Render("~/BaseCms/Content/themes/ace/assets/js/date-time/bootstrap-timepicker.min.js")
+        @Scripts.Render("~/BaseCms/Content/themes/ace/assets/js/date-time/moment.min.js")
+        @Scripts.Render("~/BaseCms/Content/themes/ace/assets/js/date-time/daterangepicker.min.js")
+        @Scripts.Render("~/BaseCms/Content/themes/ace/assets/js/date-time/bootstrap-datetimepicker.min.js")
+        @Scripts.Render("~/BaseCms/Content/themes/ace/assets/js/jquery.knob.min.js")
+        @Scripts.Render("~/BaseCms/Content/themes/ace/assets/js/jquery.autosize.min.js")
+        @Scripts.Render("~/BaseCms/Content/themes/ace/assets/js/jquery.inputlimiter.1.3.1.min.js")
+        @Scripts.Render("~/BaseCms/Content/themes/ace/assets/js/jquery.maskedinput.min.js")
+        @Scripts.Render("~/BaseCms/Content/themes/ace/assets/js/bootstrap-tag.min.js")
+        @Scripts.Render("~/BaseCms/Content/themes/ace/assets/js/typeahead.jquery.min.js")
+        @Scripts.Render("~/BaseCms/Scripts/jquery.maskMoney.js")
+        @Scripts.Render("~/BaseCms/Scripts/Views.js?v=2")
+        @Scripts.Render("~/BaseCms/Scripts/ListViewAction.js")
+        @Scripts.Render("~/BaseCms/Scripts/TreeViewAction.js")
+        @Scripts.Render("~/BaseCms/Scripts/ListViewFilters.js")
+        @Scripts.Render("~/BaseCms/Scripts/jquery.form.js")
+        @Scripts.Render("~/BaseCms/Scripts/grid.locale-ru.js")
+        @Scripts.Render("~/BaseCms/Scripts/tinymce/tinymce.js")
+        @Scripts.Render("~/BaseCms/Content/themes/ace/assets/js/jquery.colorbox-min.js") 
+        @Scripts.Render("~/BaseCms/Content/themes/ace/assets/js/select2.min.js")
+        @Scripts.Render("~/BaseCms/Scripts/jquery.dataTables.min.js")
+        @Scripts.Render("~/BaseCms/Scripts/jquery.dataTables.processingWindowHiding.js")
+        @Scripts.Render("~/BaseCms/Scripts/jquery.dataTables.rowGrouping.js")
+        @Scripts.Render("~/BaseCms/Content/themes/ace/assets/js/jquery.dataTables.bootstrap.js") 
+        @Scripts.Render("~/BaseCms/Scripts/jquery.dataTables.ru.js")
+        @Scripts.Render("~/BaseCms/Scripts/bootbox.min.js")
+        @Scripts.Render("~/BaseCms/Scripts/imgareaselect/jquery.imgareaselect.js")
+        @Scripts.Render("~/BaseCms/Scripts/jquery.jeditable.js")
+        @Scripts.Render("~/BaseCms/Scripts/retina.js")
+        @Scripts.Render("~/BaseCms/Scripts/codemirror/codemirror.js")
+        @Scripts.Render("~/BaseCms/Scripts/codemirror/mode/xml/xml.js")
+        @Scripts.Render("~/BaseCms/Scripts/codemirror/addon/display/fullscreen.js")
+        @Scripts.Render("~/BaseCms/Scripts/codemirror/addon/selection/active-line.js")
+        
+         
+        <script>
+            jQuery(function($) {
+                var $overflow = '';
+                var colorbox_params = {
+                    rel: 'colorbox',
+                    reposition: true,
+                    scalePhotos: true,
+                    scrolling: false,
+                    previous: '<i class="ace-icon fa fa-arrow-left"></i>',
+                    next: '<i class="ace-icon fa fa-arrow-right"></i>',
+                    close: '&times;',
+                    current: '{current} of {total}',
+                    maxWidth: '100%',
+                    maxHeight: '100%',
+                    onOpen: function() {
+                        $overflow = document.body.style.overflow;
+                        document.body.style.overflow = 'hidden';
+                    },
+                    onClosed: function() {
+                        document.body.style.overflow = $overflow;
+                    },
+                    onComplete: function() {
+                        $.colorbox.resize();
+                    }
+                };
+
+                $('.ace-thumbnails [data-rel="colorbox"]').colorbox(colorbox_params);
+                $("#cboxLoadingGraphic").html("<i class='ace-icon fa fa-spinner orange'></i>"); //let's add a custom loading icon
+            });
+        </script>
+        
+        @if (renderScripts)
+        {
+            foreach (var script in backofficeManager.GetScripts()["Root"])
+            {
+                @Scripts.Render(script)
+            }
+        }
+
+        <script type ="text/javascript">
+            var rootModule = new CMSViews.Root();
+            var menuModule = new CMSViews.MenuWithTabs();
+            rootModule.setView(menuModule);
+        </script>
+    </body>
+</html>

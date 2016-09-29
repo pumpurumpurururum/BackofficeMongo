@@ -1,0 +1,29 @@
+﻿@using BaseCms.Views.Detail
+@using BaseCms.Views.Xml
+@model object
+@{
+    var metaData = (DetailMetadataItem)ViewBag.MetaData;
+
+    var collectionName = ViewBag.CollectionName;
+    var identifier = ViewBag.Identifier;
+    var dictStrStrPropertyName = ViewBag.DictStrStrPropertyName ?? metaData.PropertyName;
+    
+    var xmlMetadata = ViewBag.XmlMetadata as XmlEditorMetadata;
+    
+    if (xmlMetadata == null)
+    {
+        throw new Exception("XmlEditorMetadata attribute is not set");
+    }
+
+    var xmlMetadataCollectionName = xmlMetadata.XmlMetadataCollectionType.Name;
+
+    var xmlMetadataIdentifier = ViewBag.XmlMetadataIdentifier;
+
+    var xmlMetadataPropertyName = xmlMetadata.XmlMetadataPropertyName;
+
+    var viewName = xmlMetadata.ViewName;
+}
+
+<div class="editable-collection-control">
+    @Html.Action("XmlEditor", "Detail", new { collectionName, identifier, dictStrStrPropertyName, xmlMetadataCollectionName, xmlMetadataIdentifier, xmlMetadataPropertyName, xmlMetadata.XmlMetadataValueProviderType, viewName })
+</div>

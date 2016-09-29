@@ -1,0 +1,54 @@
+﻿@model BaseCms.Model.ListViewMetadataModel
+<div class="detail-view-form-actions">
+    <input multiple="" type="file" id="@Model.DataTableId-uploader">
+</div>
+
+<script>
+    $('#@Model.DataTableId-uploader').ace_file_input({
+        style: 'well',
+        btn_choose: 'Drag and drop files or click here to select the file',
+        btn_change: null,
+        no_icon: 'icon-picture',
+        droppable: true,
+        thumbnail: 'small',
+        before_change: function(files, dropped) {
+            blackout.start();
+            $(this).ace_file_input('disable');
+
+            var postData = new FormData();
+            postData.append("detailViewGuid", '@(Model.DetailViewGuid)');
+            postData.append("upperIdentifier", '@(Model.UpperIdentifier)');
+            console.log(files);
+        
+            for (var i = 0; i < files.length; i++) {
+                postData.append('files', files[i]);
+            }
+
+            $.ajax({
+                url: '@Model.UploadImagesUrl',
+                type: "POST",
+                datatype: "text",
+                data: postData,
+                cache: false,
+                contentType: false,
+                processData: false,
+                success: function (result) {
+                    if (result.success) {
+                        if (result.message !== '') blackout.alert(result.message);
+                        @(Model.DataTableName).fnReloadAjax("@Html.Raw(Model.DataTableUrl)");
+                    } 
+                },
+                complete: function () {
+                    $('#@Model.DataTableId-uploader').ace_file_input('reset_input');
+                    setInterval(function () {
+                        $('#@Model.DataTableId-uploader').ace_file_input('reset_input');
+                    }, 500);
+                    $('#@Model.DataTableId-uploader').ace_file_input('enable');
+                    blackout.end();
+                }
+            });
+
+        }
+    });
+    
+</script>

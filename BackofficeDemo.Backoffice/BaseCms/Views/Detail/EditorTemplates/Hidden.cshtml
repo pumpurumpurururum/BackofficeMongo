@@ -1,0 +1,7 @@
+﻿@{
+    int? collectionIndex = ViewBag.CollectionIndex;
+    string propertyName = collectionIndex.HasValue
+                              ? String.Format("{0}.{1}[{2}]", ViewBag.CollectionName, ViewBag.MetaData.PropertyName, collectionIndex.Value)
+                              : ViewBag.MetaData.PropertyName as string;
+}
+@Html.Hidden(propertyName, ViewData.TemplateInfo.FormattedModelValue, new { id="_CMSScopeName_" + ViewBag.MetaData.PropertyName })

@@ -1,0 +1,41 @@
+﻿@using System.Xml.Linq
+@using BaseCms.Views.Detail
+@model string
+
+@{
+    var additional_class = ViewBag.@class ?? "span8";
+
+    var metaData = (DetailMetadataItem)ViewBag.MetaData;
+
+    var formattedText = Model == null ? String.Empty : XDocument.Parse(Model).ToString();
+
+    int? collectionIndex = ViewBag.CollectionIndex;
+    string propertyName = collectionIndex.HasValue
+                              ? String.Format("{0}.{1}[{2}]", ViewBag.CollectionName, metaData.PropertyName, collectionIndex.Value)
+                              : metaData.PropertyName;
+
+    var controlId = "_CMSScopeName_" + (collectionIndex.HasValue ? String.Format("{0}_{1}_{2}", ViewBag.CollectionName, metaData.PropertyName, collectionIndex.Value == -9999 ? "__index__" : collectionIndex.Value.ToString()) : metaData.PropertyName);
+}
+
+
+@(metaData.IsEditable ? Html.TextArea(propertyName, formattedText, new {@class = "text-box multi-line " + additional_class, rows = 3, id = controlId}) : Html.TextArea((string) ViewBag.MetaData.PropertyName, formattedText, new {@class = "text-box multi-line " + additional_class, rows = 3, id = controlId, @readonly = "readonly"}))
+
+<script>
+    if ('@controlId'.indexOf('_index__') == -1) {
+        var editor = CodeMirror.fromTextArea(document.getElementById("@controlId"), {
+            lineNumbers: true,
+            lineWrapping: true,
+            matchBrackets: true,
+            styleActiveLine: true,
+            extraKeys: {
+                "F11": function (cm) {
+                    cm.setOption("fullScreen", !cm.getOption("fullScreen"));
+                },
+                "Esc": function (cm) {
+                    if (cm.getOption("fullScreen")) cm.setOption("fullScreen", false);
+                }
+            }
+        });
+    }
+</script>
+        

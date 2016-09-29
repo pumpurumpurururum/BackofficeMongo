@@ -1,0 +1,26 @@
+﻿@model BaseCms.Model.LinkedList.LinkedListSingleViewModel
+
+@{
+    var selectId = "_CMSScopeName_" + Model.PropertyName;
+    var additionalClass = Model.AdditionalClass;
+}
+<select id="@selectId" name="@Model.PropertyName" style="position: relative;" @(!String.IsNullOrEmpty(additionalClass) ? "class=" + additionalClass : String.Empty) validate="@Model.Validate">
+    <option @((Model.Selected == null)?"selected='selected'":String.Empty) value="" >Not chosen</option>
+    @foreach (var element in Model.Preloaded)
+    {
+        <option value="@element.Id" @((Model.Selected != null && element.Id == Model.Selected.Id)?"selected='selected'":String.Empty)>@element.Name</option>
+    }
+</select>
+
+<script type="text/javascript">
+    $(document).ready(function() {
+        $('#@selectId').select2({
+            width: '200'
+            
+        });
+        @if (!Model.IsEditable)
+        {
+            <text>$('#@selectId').select2('readonly', true);</text>
+        }
+    });
+</script>

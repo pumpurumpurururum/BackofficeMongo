@@ -1,0 +1,55 @@
+﻿@using System.Configuration
+@using BaseCms.Views.Detail
+@model string
+@{
+    var metadata = ViewBag.MetaData as DetailMetadataItem;
+    
+    var htmlEditorMetadata = metadata.HtmlEditorMetadata;
+    var css = String.Empty;
+    var cssForRemoveFormat = String.Empty;
+    var imagesUrl = "undefined";
+    if (htmlEditorMetadata != null)
+    {
+        css = htmlEditorMetadata.CssFromConfig ? ConfigurationManager.AppSettings[htmlEditorMetadata.Css] : htmlEditorMetadata.Css;
+        cssForRemoveFormat = htmlEditorMetadata.CssSelectorsForRemoveFormat;
+        imagesUrl = $"'{(htmlEditorMetadata.ImagesUrlFromConfig ? ConfigurationManager.AppSettings[htmlEditorMetadata.ImagesUrl] : htmlEditorMetadata.ImagesUrl)}'";
+    }
+
+    int? collectionIndex = ViewBag.CollectionIndex;
+    string propertyName = collectionIndex.HasValue
+                              ? String.Format("{0}.{1}[{2}]", ViewBag.CollectionName, metadata.PropertyName, collectionIndex.Value)
+                              : metadata.PropertyName;
+    var controlId = "_CMSScopeName_" + (collectionIndex.HasValue ? string.Format("{0}_{1}_{2}", ViewBag.CollectionName, metadata.PropertyName, collectionIndex.Value == -9999 ? "__index__" : collectionIndex.Value.ToString()) : metadata.PropertyName);
+}
+
+@if (metadata.IsEditable)
+{
+    <text>
+        <script>
+            if ('@controlId'.indexOf('_index__') === -1) {
+                var htmlEditorSettings = {
+                    css: '@css',
+                    cssForRemoveFormat: '@cssForRemoveFormat',
+                    needRemoveHtmlTagsButton: false,
+                    imagesUrl: @Html.Raw(imagesUrl)
+                    };
+                tinyMceHelper.init('#@(controlId)', htmlEditorSettings);
+            }
+        </script>
+    </text>
+}
+else
+{
+    <text>
+        <script> 
+            if ('@controlId'.indexOf('_index__') === -1) {
+                tinyMceHelper.initReadOnly('#@(controlId)');
+            } 
+        </script>
+    </text>
+}
+
+<div style="margin: 0 0 12px;">
+    @Html.TextArea(propertyName, Model, new {@class = "text-box multi-line span8", id = controlId})
+</div>
+

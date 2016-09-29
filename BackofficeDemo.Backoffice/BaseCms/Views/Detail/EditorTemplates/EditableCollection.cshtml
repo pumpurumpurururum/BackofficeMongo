@@ -1,0 +1,16 @@
+﻿@using BaseCms.Views.Detail
+@model object
+@{ var metaData = (DetailMetadataItem) ViewBag.MetaData; }
+@{
+    var upperIdentifier = ViewBag.Identifier as string;
+    var detailViewGuid = ViewBag.DetailViewGuid as string;
+    
+    if (String.IsNullOrEmpty(upperIdentifier))
+    {
+        upperIdentifier = "0";
+    }
+}
+
+<div class="form-horizontal editable-collection-control">
+    @Html.Action("EditableCollection", "Detail", new { collectionName = metaData.LinkMetadata.CollectionName, upperIdentifier, detailViewGuid, metaData.EditableCollectionMetadata })
+</div>

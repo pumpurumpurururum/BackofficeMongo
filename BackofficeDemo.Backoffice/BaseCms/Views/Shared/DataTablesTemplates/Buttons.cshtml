@@ -1,0 +1,35 @@
+﻿@using BaseCms.Views.List.ListViewMetadata.Enums
+@model ActionButtons
+return '<div class="action-buttons">' +
+        @if (Model.HasFlag(ActionButtons.CustomButtons))
+        {
+            <text>
+            '@Html.Raw(ViewData["CustomButtonsContent"])' +
+            </text>
+        }
+        @if (Model.HasFlag(ActionButtons.EditButton))
+        {
+            <text>
+                '<a class="blue editable-list-view-edit" href="#" data-toggle="tooltip" title="Edit" onclick="return false;"><i class="fa fa-pencil-square-o bigger-130"></i></a>' +
+            </text>
+        }
+        @if (Model.HasFlag(ActionButtons.DeleteButton))
+        {
+            <text>
+            '<a class="red editable-list-view-delete" href="#" data-toggle="tooltip" title="Remove" onclick="return false;"><i class="fa fa-times bigger-130"></i></a>' +
+            </text>
+        }
+        @if (Model.HasFlag(ActionButtons.UnlinkButton))
+        {
+            <text>
+            '<a class="red editable-list-view-unlink" href="#" data-toggle="tooltip" title="Unbind" onclick="return false;"><i class="fa fa-unlink bigger-130"></i></a>' +
+            </text>
+        }
+        @if (Model.HasFlag(ActionButtons.MoveButtons))
+        {
+            <text>
+            '<a class="dark editable-list-view-up" href="#" data-toggle="tooltip" title="up" onclick="return false;"><i class="fa fa-level-up bigger-130"></i></a>' +
+            '<a class="dark editable-list-view-down" href="#" data-toggle="tooltip" title="down" onclick="return false;"><i class="fa fa-level-down bigger-130"></i></a>' +
+            </text>
+        }
+        '</div>';

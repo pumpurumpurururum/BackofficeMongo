@@ -1,0 +1,95 @@
+﻿@using System.Reflection
+@using BaseCms.Common.Attributes
+@model BaseCms.Model.DataWithIdentifier<object,string>
+@{
+    var cmsMetadataAttribute = Model.Type.GetCustomAttribute<CmsMetadataTypeAttribute>(true);
+}
+
+<div class="page-header position-relative">
+    <h1>
+        @(cmsMetadataAttribute == null ? Model.Type.Name : cmsMetadataAttribute.CollectionTitlePlural)
+    </h1>
+</div>
+
+<div id="filter"></div>
+
+<table id="list_CMSScopeName_" class="scroll" cellpadding="0" cellspacing="0"></table>
+<div id="pager_CMSScopeName_" class="scroll" style="text-align:center;"></div>
+    
+<div id="tree_CMSScopeName_" class="tree"></div>
+
+<div id="menu"></div>
+
+<script>
+
+    var oTree__CMSScopeName_ = undefined;
+
+    $(document).ready(function () {
+        reloadTree('@Html.Raw(Model.Url)');
+    });
+
+
+    function reloadTree(url) {
+       
+        $('#pager_CMSScopeName_').next().remove();
+        $('#pager_CMSScopeName_').after('<div id="tree_CMSScopeName_" class="tree"></div>');
+        
+        var treeDataSource = new DataSourceTree({
+
+            url: url,
+            collectionName: '@(Model.Type.Name)'
+        });
+      
+        var treeDiv = $('#tree_CMSScopeName_');
+        treeDiv.html('<div class = "tree-folder" style="display:none;">\
+				<div class="tree-folder-header" id = "plus">\
+					<i class="ace-icon tree-plus"></i>\
+					<div class="ace-icon fa fa-times">\
+                </div>\
+                <div class="tree-folder-name"></div>\
+				</div>\
+				<div class="tree-folder-content"></div>\
+				<div class="tree-loader" style="display:none"></div>\
+			</div>\
+			<div class="tree-item" style="display:none;">\
+                <div class="ace-icon fa fa-times">\
+            </div>\
+                <div class="tree-item-name"></div>\
+            </div>');
+        treeDiv.addClass('tree-selectable');
+        oTree__CMSScopeName_ = treeDiv.tree({
+
+            dataSource: treeDataSource,
+            multiSelect: true,
+            loadingHTML: '<div class="tree-loading"><i class="ace-icon fa fa-refresh fa-spin blue"></i></div>',
+            'open-icon': 'ace-icon tree-minus', 
+            'close-icon': 'ace-icon tree-plus',
+            'selectable': true,
+            'selected-icon': 'ace-icon fa fa-check',
+            'unselected-icon': 'ace-icon fa fa-times'
+        });
+
+       
+       
+
+        oTree__CMSScopeName_.on('selected', function (evt, data) {
+         
+            var selItems = [];
+            for (var i = 0; i < data.info.length; i++) {
+                selItems.push(new CMSViews.SelectedItem(data.info[i].id, ''));
+            }
+
+            _CMSScope_.selectItem(selItems);
+        });
+
+        oTree__CMSScopeName_.on('click', function (evt, data) {
+          
+
+            tab.open('@(cmsMetadataAttribute.CollectionTitleSingular) #', '@(Model.Type.Name)', data.id);
+
+        });
+
+        _CMSScope_.assignTree(oTree__CMSScopeName_);
+        }
+
+</script>

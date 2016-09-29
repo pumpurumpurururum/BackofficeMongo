@@ -1,0 +1,224 @@
+﻿@using System.Web.Optimization
+@using BaseCms.DependencyResolution
+
+@using BaseCms.Manager.Interfaces
+@model string
+@{
+    string loginHeader = ViewBag.LoginHeader == null ? null : ViewBag.LoginHeader.ToString();
+
+    var backofficeManager = IoC.Container.GetInstance<IBackofficeManager>();
+    var renderStyles = backofficeManager.GetStyles().ContainsKey("Login");
+}
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="utf-8">
+        <title>Login</title>
+        
+        <!-- For IE -->
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+
+        <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0" />
+        <meta name="description" content="">
+        <meta name="author" content="">
+        
+        <!-- Le styles -->
+        
+        <!-- Basic styles-->
+        @Styles.Render("~/BaseCms/Content/themes/ace/assets/css/bootstrap.min.css")
+        @Styles.Render("~/BaseCms/Content/themes/ace/assets/css/font-awesome.min.css")
+
+        <!--[if IE 7]>
+            <link rel="stylesheet" href="/BaseCms/Content/themes/ace/assets/css/font-awesome-ie7.min.css" />
+        <![endif]-->
+        
+        <!--page specific plugin styles-->
+
+        <!--fonts-->
+        
+        <link href='http://fonts.googleapis.com/css?family=Open+Sans&subset=latin,cyrillic' rel='stylesheet' type='text/css'>
+        @*<link rel="stylesheet" href="~/BaseCms/Content/themes/ace/assets/css/ace-fonts.css" />*@
+
+        <!--ace styles-->
+        
+        @Styles.Render("~/BaseCms/Content/themes/ace/assets/css/ace.min.css")
+        @Styles.Render("~/BaseCms/Content/themes/ace/assets/css/ace-rtl.min.css")
+        @*     @Styles.Render("~/BaseCms/Content/themes/ace/assets/css/ace-responsive.min.css")
+        @Styles.Render("~/BaseCms/Content/themes/ace/assets/css/ace-skins.min.css")*@
+        @Styles.Render("~/BaseCms/Content/themes/ace/assets/css/ace.onpage-help.css")
+        
+        <!--[if lte IE 8]>
+            <link rel="stylesheet" href="~/BaseCms/Content/themes/ace/assets/css/ace-ie.min.css" />
+        <![endif]-->
+        
+        @Styles.Render("~/BaseCms/Content/themes/ace/assets/css/datepicker.css")
+        @Styles.Render("~/BaseCms/Content/themes/base/jquery-ui.css")
+        @Styles.Render("~/BaseCms/Content/themes/base/jquery.ui.dialog.css")
+        
+        @if (renderStyles)
+        {
+            foreach (var style in backofficeManager.GetStyles()["Login"])
+            {
+                @Styles.Render(style)
+            }
+        }
+        
+        <!-- HTML5 shim, for IE6-8 support of HTML5 elements -->
+        <!--[if lt IE 9]>
+            <script src="~/BaseCms/Scripts/html5shiv.js"></script>
+        <![endif]-->
+        
+        <script src="~/BaseCms/Content/themes/ace/assets/js/ace-extra.min.js"></script>
+    </head>
+    <body class="login-layout">
+        <div class="main-container ">
+			<div class="main-content">
+				<div class="row">
+					<div class="col-sm-10 col-sm-offset-1">
+						<div class="login-container">
+						    <div class="center">
+						        @if (!string.IsNullOrEmpty(loginHeader))
+						        {
+								    @Html.Partial(loginHeader)
+						        }
+						    </div>
+
+							<div class="space-6"></div>
+
+						
+								<div class="position-relative">
+									<div id="login-box" class="login-box visible widget-box no-border">
+										<div class="widget-body">
+											<div class="widget-main">
+												<h5 class="header blue lighter bigger">
+													<i class="ace-icon fa fa-coffee green"></i>
+                                                    Please enter your login and password
+												</h5>
+
+												<div class="space-6"></div>
+
+											    <form method="POST">
+											        <fieldset>
+											            <label class="block clearfix">
+											                <span class="block input-icon input-icon-right">
+											                    <input type="text" name="login" class="form-control"  placeholder="Login" value="" />
+											                    <i class="ace-icon fa fa-user"></i>
+											                </span>
+											            </label>
+
+											            <label class="block clearfix">
+											                <span class="block input-icon input-icon-right">
+											                    <input type="password" name="password" class="form-control" placeholder="Password" value="" />
+											                    <i class="ace-icon fa fa-lock"></i>
+											                </span>
+											            </label>
+
+											            <div class="space"></div>
+
+											            <div class="clearfix">
+											                <label class="inline">
+											                    <input type="checkbox" class="ace" name="remember" />
+											                    <span class="lbl"> Remember</span>
+											                </label>
+
+											                <button type="submit" class="width-35 pull-right btn btn-sm btn-primary">
+											                    <i class="ace-icon fa fa-key"></i>
+											                    <span class="bigger-110">Enter</span>
+											                </button>
+											            </div>
+
+											            <div class="space-4"></div>
+											        </fieldset>
+                                                    @if (Model != null)
+                                                    {
+                                                        <div class="alert alert-error">
+                                                            <button type="button" class="close" data-dismiss="alert">×</button>
+                                                            <p>@Model</p>
+                                                        </div>
+                                                    }
+												</form>
+											</div><!--/widget-main-->
+
+											<div class="toolbar clearfix">
+												<div>
+													<a href="#" onclick="show_box('forgot-box'); return false;" class="forgot-password-link">
+														<i class="ace-icon fa fa-arrow-left"></i>
+                                                        Forgot your password?
+													</a>
+												</div>
+											</div>
+										</div><!--/widget-body-->
+									</div><!--/login-box-->
+
+									<div id="forgot-box" class="forgot-box widget-box no-border">
+										<div class="widget-body">
+											<div class="widget-main">
+												<h4 class="header red lighter bigger">
+													<i class="ace-icon fa fa-key"></i>
+                                                    Restore password
+												</h4>
+
+												<div class="space-6"></div>
+												<p>
+                                                    Enter your email address
+												</p>
+
+												<form>
+													<fieldset>
+														<label class="block clearfix">
+															<span class="block input-icon input-icon-right">
+																<input type="email" class="span12" placeholder="Email" />
+																<i class="ace-icon fa fa-envelope"></i>@*icon-envelope*@
+															</span>
+														</label>
+
+														<div class="clearfix">
+															<button onclick="return false;" class="width-35 pull-right btn btn-sm btn-danger">
+																@*<i class="icon-lightbulb"></i>*@
+															   
+                                                                <i class="ace-icon fa fa-lightbulb-o"></i>
+															    <span class="bigger-110">Send!</span>
+															</button>
+														</div>
+													</fieldset>
+												</form>
+											</div><!--/widget-main-->
+
+											<div class="toolbar center">
+												<a href="#" onclick="show_box('login-box'); return false;" class="back-to-login-link">
+													To login page
+													<i class="ace-icon fa fa-arrow-right"></i>@*icon-arrow-right*@
+												</a>
+											</div>
+										</div><!--/widget-body-->
+									</div><!--/forgot-box-->
+								</div><!--/position-relative-->
+							@*</div>*@
+						</div>
+					</div><!--/.span-->
+				</div><!--/.row-fluid-->
+			</div>
+		</div>
+        <!-- /container -->
+
+        <!-- Le javascript
+            ================================================== -->
+        <!-- Placed at the end of the document so the pages load faster -->
+        
+        <script src="~/BaseCms/Content/themes/ace/assets/js/jquery-2.0.3.min.js"></script>
+        
+        <script type="text/javascript">
+            if ("ontouchend" in document) document.write("<script src='~/BaseCms/Content/themes/ace/assets/js/jquery.mobile.custom.min.js'>" + "<" + "/script>");
+		</script>
+		<script src="~/BaseCms/Content/themes/ace/assets/js/bootstrap.min.js"></script>
+
+        @Scripts.Render("~/BaseCms/Scripts/retina.js")
+        
+        <script type="text/javascript">
+            function show_box(id) {
+                $('.widget-box.visible').removeClass('visible');
+                $('#' + id).addClass('visible');
+            }
+		</script>
+    </body>
+</html>

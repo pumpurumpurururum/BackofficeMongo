@@ -1,0 +1,37 @@
+﻿@using System.Globalization
+@using BaseCms.Views.Detail
+@model TimeSpan
+@{
+    TimeSpan timespan = Model;
+    DateTime time = DateTime.Today.Add(timespan);
+    string formattedValue = time.ToString("hh:mm tt", CultureInfo.InvariantCulture);
+
+
+    var metaData = (DetailMetadataItem) ViewBag.MetaData;
+    var guid = Guid.NewGuid();
+
+}
+@if (metaData.IsEditable)
+{
+    <script>
+        $('#timepicker@(guid)').timepicker({
+            //minuteStep: 1,
+            //showSeconds: false,
+            //showMeridian: false,
+            //showInputs: false,
+            //disableFocus: true,
+            //defaultTime: '0:00 AM'
+        });
+    </script>
+
+    <div class="input -append bootstrap-timepicker">
+        <input id="timepicker@(guid)" name='@(ViewBag.MetaData.PropertyName)' type="text" class="input-small" value="@formattedValue">
+        <span class="add-on">
+            <i class="icon-time"></i>
+        </span>
+    </div>
+}
+else
+{
+    <p class="centering" id="_CMSScopeName_@ViewBag.MetaData.PropertyName">@formattedValue.ToString(CultureInfo.InvariantCulture)</p>
+}

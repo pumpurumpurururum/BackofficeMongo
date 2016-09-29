@@ -1,0 +1,29 @@
+﻿@using BaseCms.Common.Validation.Attributes.Base
+@using BaseCms.Views.Detail
+@model object
+@{ var metaData = (DetailMetadataItem)ViewBag.MetaData; }
+@{ var linkMetadata = metaData.LinkMetadata;}
+@{
+    
+    var htmlValidationAttribute = BootstrapValidationHelper.GetValidationHtmlAttribute(ViewBag.MetaData.ValidationAttributes as List<ValidationAttribute>);        
+    var    parameters = new
+        {
+            propertyName = metaData.PropertyName, 
+            collectionName = linkMetadata.CollectionName, 
+            identifier = Model?.ToString(), 
+            filter = ViewBag.Filter, 
+            additionalClass = ViewBag.@class, 
+            validate = htmlValidationAttribute, 
+            isEditable = metaData.IsEditable,
+            parentProperty = metaData.LinkMetadata.RelatedList
+        };    
+}
+@if (linkMetadata.IsPreloaded && linkMetadata.CollectionName!="Page")
+{
+    @Html.Action("PreloadedLinkedList", "Link", parameters)
+}
+else
+{
+    @Html.Action("ServerLinkedList", "Link", parameters)
+}
+

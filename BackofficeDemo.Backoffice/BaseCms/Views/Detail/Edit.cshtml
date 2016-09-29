@@ -1,0 +1,124 @@
+﻿@model BaseCms.Model.DetailViewModel
+@{
+    var identifier = Model.Structure.Identifier.Id;
+    var collectionName = Model.Structure.Identifier.CollectionName;
+
+    var guid = Guid.NewGuid();
+
+    var metaData = Model.DefaultDetailMetadata;
+    var data = Model.Structure.Data;
+    
+    string tab1 = Guid.NewGuid().ToString();
+    string tab2 = Guid.NewGuid().ToString();
+    string tab3 = Guid.NewGuid().ToString();
+    string tab4 = Guid.NewGuid().ToString();
+    
+    var seoList = new List<string>
+            {
+                "TitleRu",
+                "TitleEng",
+                "SeoTextRu",
+                "SeoTextEng",
+                "MetaKeywordsRu",
+                "MetaKeywordsEng",
+                "MetaDescriptionRu",
+                "MetaDescriptionEng",
+                "Title",
+                "MetaKeywords",
+                "MetaDescription",
+                "NoIndex",
+            };
+    var techList = new List<string>
+            {
+                "Id",
+                "IsArchived",
+                "Url",
+                "DisplayInSiteMap",
+                "DisplayInMenu",
+                "Order",
+                "Template",
+            };
+            
+    var showTab2 = metaData.Items.Any(p => seoList.Contains(p.PropertyName));
+    var showTab3 = metaData.Items.Any(p => techList.Contains(p.PropertyName));
+
+    var headerProperty = metaData.Items.FirstOrDefault(p => p.IsHeaderDisplayProperty);
+}
+
+<div class="page-header position-relative">
+    <h1>
+        @metaData.ListViewHeaderPlural
+        <small>
+            <i class="icon-double-angle-right"></i>
+            @(headerProperty == null ? String.Empty : headerProperty.GetValue(data))
+        </small>
+    </h1>
+</div>
+
+
+@using (Ajax.BeginForm("Save", null, new AjaxOptions(), new { id = guid.ToString() }))
+{
+    <div class="tabbable">
+        <ul class="nav nav-tabs padding-18">
+            <li class="active"><a href="#@tab1" data-toggle="tab">Home</a></li>
+            @if (showTab2)
+            {
+                <li><a href="#@tab2" data-toggle="tab">SEO</a></li>
+            }
+            @if (showTab3)
+            {
+                <li><a href="#@tab3" data-toggle="tab">Technical information</a></li>
+            }
+            <li><a href="#@tab4" data-toggle="tab">History</a></li>
+        </ul>
+    </div>
+    <div class="tab-content no-border">
+        <div class="tab-pane active" id="@tab1">
+            @foreach (var row in metaData.Items.Where(p => !p.IsHidden && !seoList.Contains(p.PropertyName) && !techList.Contains(p.PropertyName)).OrderBy(p => p.Order))
+            {
+                object item = row.GetValue(data);
+                <div class="row">
+                    <div class="col-md-3 text-right">@row.Label:</div>
+                    <div class="col-md-9 text-left">@(Html.EditorFor(m => item, row.ItemType.Template, new { MetaData = row, Identifier = identifier }))</div>
+                </div>
+            }
+        </div>
+        @if (showTab2)
+        {
+            <div class="tab-pane" id="@tab2">
+                @foreach (var row in metaData.Items.Where(p => !p.IsHidden && seoList.Contains(p.PropertyName)).OrderBy(p => p.Order))
+                {
+                    object item = row.GetValue(data);
+                    <div class="row">
+                        <div class="col-md-3 text-right">@row.Label:</div>
+                        <div class="col-md-9 text-left">@(Html.EditorFor(m => item, row.ItemType.Template, new { MetaData = row, Identifier = identifier }))</div>
+                    </div>
+                }
+            </div>
+        }
+        @if (showTab3)
+        {
+            <div class="tab-pane" id="@tab3">
+                @foreach (var row in metaData.Items.Where(p => !p.IsHidden && techList.Contains(p.PropertyName)).OrderBy(p => p.Order))
+                {
+                    object item = row.GetValue(data);
+                    <div class="row">
+                        <div class="col-md-3 text-right">@row.Label:</div>
+                        <div class="col-md-9 text-left">@(Html.EditorFor(m => item, row.ItemType.Template, new { MetaData = row, Identifier = identifier }))</div>
+                    </div>
+                }
+            </div>
+        }
+        <div class="tab-pane" id="@tab4">
+            <div class="row">
+                <div class="span12 text-left">@(Html.DisplayFor(m => tab4, "History", new { Model.Structure.Identifier }))</div>
+            </div>
+        </div>
+    </div>
+            
+    <input type="hidden" id="collectionName" name="collectionName" value="@collectionName" />
+    <input type="hidden" id="identifier" name="identifier" value="@identifier" />
+    
+    Html.RenderPartial("FormActions", Model.Buttons);
+}
+<script>$("#@(guid.ToString())").bt_validate();</script>

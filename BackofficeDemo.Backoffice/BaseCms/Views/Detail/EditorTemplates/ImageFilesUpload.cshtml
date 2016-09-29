@@ -1,0 +1,73 @@
+﻿@using BaseCms.Views.Detail
+
+@{
+    var guid = Guid.NewGuid().ToString();
+    var metaData = (DetailMetadataItem)ViewBag.MetaData;
+
+    var controlId = "_CMSScopeName_" + metaData.PropertyName;
+
+    int? collectionIndex = ViewBag.CollectionIndex;
+    string propertyName = collectionIndex.HasValue
+                              ? String.Format("{0}.{1}[{2}]", ViewBag.CollectionName, metaData.PropertyName, collectionIndex.Value)
+                              : metaData.PropertyName;
+   
+     var decodedText = HttpUtility.HtmlDecode(ViewData.TemplateInfo.FormattedModelValue.ToString());
+}
+
+
+<div class="col-xs-12">
+    <label class="ace-file-input">
+        <input type="file" id="@guid-uploader">
+    </label>
+     @Html.Hidden(propertyName, decodedText, new { id=controlId })
+</div>
+<script>
+
+    $('#@guid-uploader').ace_file_input({
+      
+        allowExt: ['jpg', 'jpeg', 'png'],
+        btn_choose: 'Choose',
+        btn_change: 'Change',
+        droppable: false,
+        thumbnail: false
+    })  .on('file.error.ace', function (event, info) {
+        info.dropped(); 
+        event.preventDefault();
+        })
+        .on('change', function (ev) {
+
+        if (this.disabled) return;
+
+        blackout.start();
+        $(this).ace_file_input('disable');
+        var postData = new FormData();
+        var files = this.files;
+        for (var i = 0; i < files.length; i++) {
+            postData.append('fileInput', files[i]);
+        };
+
+        $.ajax({
+            url: "FilesMultiUpload/UploadFilesImages",
+            type: "POST",
+            data: postData,
+            contentType: false,
+            processData: false,
+            success: function(result) {
+                $("#@controlId").val(result.message);
+
+            },
+            complete: function() {
+
+                blackout.end();
+            }
+
+
+        });
+
+    });
+
+
+   
+
+
+</script>

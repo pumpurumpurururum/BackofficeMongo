@@ -1,0 +1,9 @@
+﻿@using BaseCms.Views.Detail
+@{ var metaData = (DetailMetadataItem) ViewBag.MetaData; }
+@{ var linkMetadata = metaData.LinkMetadata;}
+@{ var parameters = new { propertyName = metaData.PropertyName, collectionName = linkMetadata.CollectionName, isEditable = metaData.IsEditable }; }
+@{ var additional_class = ViewBag.@class ?? "col-md-6";}
+<div class="well well-small @additional_class">
+    <span class="label">@ViewBag.Caption</span>
+    @Html.Action("RadioButtonGroup","Link", parameters)
+</div>

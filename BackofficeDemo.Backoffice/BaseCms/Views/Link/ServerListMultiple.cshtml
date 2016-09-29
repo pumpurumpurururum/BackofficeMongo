@@ -1,0 +1,45 @@
+﻿@using BaseCms.Views.Detail
+@using BaseCms.Views.LinkDDL
+@model BaseCms.Model.LinkedList.LinkedListMultipleViewModel
+
+@{
+    var selectId = "_CMSScopeName_" + Model.PropertyName;
+    var linkMetadata = new DefaultLinkDDLMetadataProvider().GetMetadata(Model.Type);
+}
+<input type="hidden" id="@selectId" value="@((Model.Selected != null)?Model.Selected.Id:String.Empty)" name="@Model.PropertyName" />
+<script type="text/javascript">
+    $(function () {
+        $("#@selectId").select2({
+            minimumInputLength: 1,
+            query: function (query) {
+                $.ajax(
+                    {
+                        url: '@Url.Action("ServerListFetch","Link")',
+                        data: {
+                            collectionName:'@Model.CollectionName',
+                            search: encodeURIComponent(query.term),
+                            filter: '@Model.Filter',
+                        },
+                        type: 'POST',
+                        dataType:'json',
+                        success:function(data) {
+                            query.callback({ results: data });
+                        }
+                    });
+            },
+            placeholder: '',
+            allowClear: true,
+            width: '400',
+            @if(Model.Selected != null){
+            <text>
+                initSelection: function (element, callback) {
+                    var id = '@Model.Selected.Id';
+                    var text = '@Model.Selected.Name';
+                    callback({ id: id, text: text });
+                }
+            </text>
+            }
+        });
+    });
+    
+</script>

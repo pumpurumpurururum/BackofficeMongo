@@ -1,0 +1,58 @@
+﻿@using System.Globalization
+@using BaseCms.Views.Detail
+@{
+    var additionalClass = ViewBag.@class ?? "col-xs-1";
+
+    var metaData = (DetailMetadataItem)ViewBag.MetaData;
+
+    var controlId = "_CMSScopeName_" + metaData.PropertyName;
+
+    var htmlValidationAttribute = BootstrapValidationHelper.GetValidationHtmlAttribute(metaData.ValidationAttributes);
+    
+    var maxLength = metaData.MaxLength;
+    
+    int? collectionIndex = ViewBag.CollectionIndex;
+    string propertyName = collectionIndex.HasValue
+                              ? String.Format("{0}.{1}[{2}]", ViewBag.CollectionName, metaData.PropertyName, collectionIndex.Value)
+                              : metaData.PropertyName;
+
+    var decodedText = HttpUtility.HtmlDecode(ViewData.TemplateInfo.FormattedModelValue.ToString());
+
+  }  
+    @if (ViewData.TemplateInfo.FormattedModelValue != "")
+    {
+        CultureInfo cultureInfo = new CultureInfo("ru-RU");
+        var numberFormatInfo = (NumberFormatInfo)cultureInfo.NumberFormat.Clone();
+        numberFormatInfo.CurrencySymbol = "";
+        decodedText = HttpUtility.HtmlDecode(((decimal)ViewData.TemplateInfo.FormattedModelValue).ToString("C2", numberFormatInfo));
+
+    }
+    
+
+@if (metaData.IsKey)
+{
+    <p>@ViewData.TemplateInfo.FormattedModelValue</p>
+    return;
+}
+
+@if (metaData.IsEditable)
+{
+    if (maxLength > 0)
+    {
+        @Html.TextBox(propertyName, decodedText, new {@class = "text-box single-line "+additionalClass , validate = htmlValidationAttribute, id = controlId, maxLength})
+        
+    }
+    else
+    {
+        @Html.TextBox(propertyName, decodedText, new {@class = "text-box single-line" + additionalClass, validate = htmlValidationAttribute, id = controlId})
+    }
+    <text>
+        <script>
+            $('#@(controlId)').maskMoney({ decimal: '.', thousands: " " });
+        </script>
+    </text>
+}
+else
+{
+    @Html.TextBox(propertyName, decodedText, new { @class = "text-box single-line" + additionalClass, @readonly = "readonly", id = controlId })
+}

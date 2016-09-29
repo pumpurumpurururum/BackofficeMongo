@@ -1,0 +1,9 @@
+﻿@using BaseCms.Views.Detail
+@model object
+@{ var metaData = (DetailMetadataItem) ViewBag.MetaData; }
+@{ var linkMetadata = metaData.LinkMetadata;}
+@{ var parameters = new { propertyName = metaData.PropertyName, collectionName = linkMetadata.CollectionName, filter = ViewBag.Filter, additionalClass = ViewBag.@class }; }
+@if (linkMetadata.IsPreloaded)
+{
+    @Html.Action("PreloadedListMultiple", "Link", parameters)
+}

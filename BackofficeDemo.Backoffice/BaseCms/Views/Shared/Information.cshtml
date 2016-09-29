@@ -1,0 +1,23 @@
+﻿@{
+    var appInstance = ViewContext.HttpContext.ApplicationInstance;
+    var baseType = appInstance.GetType().BaseType;
+    var assemblyVersion = baseType?.Assembly.GetName().Version.ToString() ?? string.Empty;
+}
+
+<div class="modal_info ui-dialog hide" tabindex="-1" >
+    <div class="modal-header">
+        <h4 class="blue bigger">About</h4>
+    </div>
+    <div class="modal-body overflow-visible">
+        <div >
+            <p>System CMS</p>
+            <p><i>@(!string.IsNullOrEmpty(assemblyVersion) ? $"Версия {assemblyVersion}." : string.Empty)</i></p>
+        </div>
+    </div>
+    <div class="modal-footer">
+        <button class="btn btn-small btn-primary" onclick="$('.modal_info').modal('hide');">
+            <i class="fa fa-chevron-down bigger-110"></i>
+            Ок
+        </button>
+    </div>
+</div>

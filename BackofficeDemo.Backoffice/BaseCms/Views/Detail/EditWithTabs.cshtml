@@ -1,0 +1,293 @@
+﻿@model BaseCms.Model.DetailViewModel
+@{
+    var identifier = Model.Structure.Identifier.Id;
+    var collectionName = Model.Structure.Identifier.CollectionName;
+
+    var detailViewGuid = Guid.NewGuid().ToString("N");
+
+    var guid = Guid.NewGuid();
+
+    var metaData = Model.DefaultDetailMetadata;
+    var data = Model.Structure.Data;
+
+    var tabsWithBlocks = metaData.TabsWithBlocks.Split(';');
+
+    var tabs = tabsWithBlocks.Select(tabWithBlocks => tabWithBlocks.Split('|')).ToDictionary(tabAndBlocks => tabAndBlocks[0], tabAndBlocks => tabAndBlocks.Length > 1 ? tabAndBlocks[1].Split(',').ToArray() : new string[1]);
+    var guids = new string[tabs.Count];
+
+    for (var i = 0; i < guids.Length; i++)
+    {
+        guids[i] = Guid.NewGuid().ToString();
+    }
+
+    var historyTab = Guid.NewGuid().ToString();
+
+    var headerProperty = metaData.Items.FirstOrDefault(p => p.IsHeaderDisplayProperty);
+}
+<div class="col-xs-12">
+    <div class="page-header position-relative">
+        <h1>
+            @metaData.ListViewHeaderPlural
+            <small>
+                <i class="icon-double-angle-right"></i>
+                @(headerProperty == null ? String.Empty : headerProperty.GetValue(data))
+            </small>
+        </h1>
+    </div>
+
+    
+    @using (Ajax.BeginForm("Save", null, new AjaxOptions(), new { id = guid.ToString(), @class = "form-horizontal" }))
+    {
+        <div class="tabbable">
+            <ul class="nav nav-tabs padding-18">
+                @for (var i = 0; i < tabs.Count; i++)
+                {
+                    <li @(i == 0 ? "class=active" : String.Empty) ><a href="#@(guids[i])" data-toggle="tab">@(tabs.Keys.Skip(i).First())</a></li>
+                }
+                <li><a href="#@(historyTab)" data-toggle="tab">History</a></li>
+            </ul>
+        </div>
+        <div class="tab-content no-border">
+            @for (var i = 0; i < tabs.Count; i++)
+            {
+                var key = tabs.Keys.Skip(i).First();
+
+                <div class="tab-pane @(i == 0 ? "active" : String.Empty)" id="@(guids[i])">
+                    <div class="row">
+                    @for (var j = 0; j < tabs[key].Length; j++)
+                    {
+                        var asd = tabs[key][j];
+
+                        if (!string.IsNullOrEmpty(tabs[key][j]))
+                        {
+
+
+
+                            if (@tabs[key][j] != "Home")
+                            {
+                                <h4 class="header blue bolder smaller">@tabs[key][j]</h4>
+                            }
+
+                        }
+
+                        asd = asd?.Replace(" ", string.Empty);
+
+
+                        if (asd != null && asd.ToLower().Contains("price"))
+                        {
+                            var groups = new List<string>();
+                            <div class="widget-body">
+                                <label class="col-sm-3 control-label no-padding-right" >Price:</label>
+                                <div class="col-sm-9">
+                                   
+                                    <div class="form-inline">
+
+                                        @{
+                                            var i1 = i;
+                                            var j1 = j;
+                                        }
+                                        @foreach (var row in metaData.Items.Where(p => !p.IsHidden && p.Tab != i1 + 1 && p.Block == j1 + 1).OrderBy(p => p.Order))
+                                        {
+
+
+                                            var item = row.GetValue(data);
+                                            if (row.ItemType.Template.Contains("ListView"))
+                                            {
+                                    
+                                                <div class="col-sm-12 text-left">
+                                                    @(Html.EditorFor(m => item, row.ItemType.Template, new { MetaData = row, UpperIdentifier = identifier, UpperCollectionName = collectionName, DetailViewGuid = detailViewGuid, listViewMetadata = row.ListViewMetadata, popupMetadata = row.PopupMetadata }))
+                                                </div>
+                                    
+                                            }
+
+                                            else if (row.ItemType.Template.Contains("DropDownList") && !string.IsNullOrEmpty(row.LinkMetadata?.GroupName))
+                                            {
+                                                if (!groups.Contains(row.LinkMetadata.GroupName))
+                                                {
+                                                    groups.Add(row.LinkMetadata.GroupName);
+                                                    var elements = metaData.Items.Where(p => !p.IsHidden && p.Tab == i + 1 && p.Block == j + 1 && p.LinkMetadata != null && p.LinkMetadata.GroupName == row.LinkMetadata.GroupName).ToList();
+                                                    var first = elements.FirstOrDefault(p => string.IsNullOrEmpty(p.LinkMetadata.RelatedList));
+                                                    first.LinkMetadata.IsPreloaded = true;
+                                                    item = first.GetValue(data);
+                                                    @Html.LabelFor(p => item, first.Label + ":", new { @class = "col-sm-3 control-label no-padding-right" })
+                                                    <div class="col-sm-9">
+                                                        <div class="form-inline">
+                                                            @(Html.EditorFor(m => item, "DropDownListLinked", new { MetaData = first, Identifier = identifier, DetailViewGuid = detailViewGuid }))
+                                                            @while (elements.FirstOrDefault(p => first != null && p.LinkMetadata.RelatedList == first.PropertyName) != null)
+                                                            {
+                                                                first = elements.FirstOrDefault(p => first != null && p.LinkMetadata.RelatedList == first.PropertyName);
+                                                                if (first != null)
+                                                                {
+                                                                    item = first.GetValue(data);
+                                                                    first.LinkMetadata.IsPreloaded = false;
+                                                                    @Html.LabelFor(p => item, first.Label + ":", new { @class = "inline" })
+                                                                    @(Html.EditorFor(m => item, "DropDownListLinked", new { MetaData = first, Identifier = identifier, DetailViewGuid = detailViewGuid }))
+                                                                }
+                                                            }
+                                                        </div>
+                                                    </div>
+                                                }
+
+                                            }
+                                            else
+                                            {
+                                                if (row.Label == "Price")
+                                                {
+                                                    @(Html.EditorFor(m => item, row.ItemType.Template, new { MetaData = row, Identifier = identifier, DetailViewGuid = detailViewGuid }))
+                                                }
+                                                else
+                                                { 
+                                                    @Html.LabelFor(p => item, row.Label + ":")
+                                                    @(Html.EditorFor(m => item, row.ItemType.Template, new { MetaData = row, Identifier = identifier, DetailViewGuid = detailViewGuid }))
+                                                }
+
+
+
+
+                                            }
+
+
+
+                                        }
+                                    </div>
+                                </div>
+                            </div>
+
+
+                        }
+
+                        else
+                        {
+                            var groups = new List<String>();
+                            var i1 = i;
+                            var j1 = j;
+                            var items = metaData.Items.Where(p => !p.IsHidden && p.Tab == i1 + 1 && p.Block == j1 + 1).OrderBy(p => p.Order).ToList();
+                            foreach (var row in items)
+                            {
+                            <div class="form-group">
+                                @{
+                                var item = row.GetValue(data);
+                                if (row.ItemType.Template.Contains("ListView"))
+                                {
+                                    
+                                        <div class="col-sm-12 text-left">@(Html.EditorFor(m => item, row.ItemType.Template, new { MetaData = row, UpperIdentifier = identifier, UpperCollectionName = collectionName, DetailViewGuid = detailViewGuid, listViewMetadata = row.ListViewMetadata, popupMetadata = row.PopupMetadata }))</div>
+                                    
+                                }
+                                else if (row.ItemType.Template.Contains("XmlEditor"))
+                                {
+                                    var xmlMetadataIdItem = metaData.Items.First(x => x.LinkMetadata != null && x.LinkMetadata.CollectionName == row.XmlEditorMetadata.XmlMetadataCollectionType.Name);
+                                    var xmlMetadataId = xmlMetadataIdItem.GetValue(data);
+
+                                    
+                              
+                                        @Html.LabelFor(p => item, row.Label + ":", new { @class = "col-sm-3 control-label no-padding-right" })
+                                        <div class="col-sm-9">
+                                            @(Html.EditorFor(m => item, row.ItemType.Template, new { MetaData = row, CollectionName = collectionName, Identifier = identifier, XmlMetadataIdentifier = xmlMetadataId, XmlMetadata = row.XmlEditorMetadata }))
+                                        </div>
+
+                                }
+                                else if (row.ItemType.Template.Contains("DropDownList") && !string.IsNullOrEmpty(row.LinkMetadata?.GroupName))
+                                {
+                                    if (!groups.Contains(row.LinkMetadata.GroupName))
+                                    {
+                                        groups.Add(row.LinkMetadata.GroupName);
+                                        var elements = metaData.Items.Where(p => !p.IsHidden && p.Tab == i + 1 && p.Block == j + 1 && p.LinkMetadata != null && p.LinkMetadata.GroupName == row.LinkMetadata.GroupName).ToList();
+                                        var first = elements.FirstOrDefault(p => string.IsNullOrEmpty(p.LinkMetadata.RelatedList));
+                                        first.LinkMetadata.IsPreloaded = true;
+                                        item = first.GetValue(data);
+                                            @Html.LabelFor(p => item, first.Label + ":", new { @class = "col-sm-3 control-label no-padding-right" })
+                                            <div class="col-sm-9">
+                                                <div class="form-inline">
+                                                    @(Html.EditorFor(m => item, "DropDownListLinked", new { MetaData = first, Identifier = identifier, DetailViewGuid = detailViewGuid }))
+                                                    @while (elements.FirstOrDefault(p => first != null && p.LinkMetadata.RelatedList == first.PropertyName) != null)
+                                                    {
+                                                        first = elements.FirstOrDefault(p => first != null && p.LinkMetadata.RelatedList == first.PropertyName);
+                                                        if (first != null)
+                                                        {
+                                                            item = first.GetValue(data);
+                                                            first.LinkMetadata.IsPreloaded = false;
+                                                            @Html.LabelFor(p => item, first.Label + ":", new { @class = "inline" })
+                                                            @(Html.EditorFor(m => item, "DropDownListLinked", new { MetaData = first, Identifier = identifier, DetailViewGuid = detailViewGuid }))
+                                                        }
+                                                    }
+                                                </div>
+                                            </div>
+                                    }
+
+                                }
+
+
+                                else if (row.ItemType.Template.Contains("ItemLink"))
+                                {
+                         @Html.LabelFor(p => item, row.Label + ":", new { @class = "col-sm-3 control-label no-padding-right" })
+                        <div class="col-sm-9 centering">
+                            @(Html.EditorFor(m => item, row.ItemType.Template, new { MetaData = row, Identifier = identifier, DetailViewGuid = detailViewGuid }))
+                        </div>
+                                }
+
+                                else if (row.ItemType.Template.Contains("Checkbox"))
+                                {
+                         @Html.LabelFor(p => item, row.Label + ":", new { @class = "col-sm-3 control-label no-padding-right" })
+                        <div class="col-sm-9 centering">
+                            @(Html.EditorFor(m => item, row.ItemType.Template, new { MetaData = row, Identifier = identifier, DetailViewGuid = detailViewGuid }))
+                        </div>
+                                }
+
+                                else if (row.ItemType.Template.Contains("Boolean"))
+                                {
+                         @Html.LabelFor(p => item, row.Label + ":", new { @class = "col-sm-3 control-label no-padding-right" })
+                        <div class="col-sm-9 centering">
+                            @(Html.EditorFor(m => item, row.ItemType.Template, new { MetaData = row, Identifier = identifier, DetailViewGuid = detailViewGuid }))
+                        </div>
+                                }
+
+
+                                else
+                                {
+                        @Html.LabelFor(p => item, row.Label + ":", new { @class = "col-sm-3 control-label no-padding-right" })
+                        <div class="col-sm-9">
+                            @(Html.EditorFor(m => item, row.ItemType.Template, new { MetaData = row, Identifier = identifier, DetailViewGuid = detailViewGuid }))
+                        </div>
+                                }
+                                }
+                            </div>
+                            }
+
+                        }
+                    }
+                    
+                    
+
+                </div>
+                </div>
+            }
+        
+            <div class="tab-pane" id="@historyTab">
+                <div class="row">
+                    <div class="col-md-12 text-left">@(Html.DisplayFor(m => historyTab, "History", new { Model.Structure.Identifier }))</div>
+                </div>
+            </div>
+            @*<div class="tab-pane" id="@historyTab">
+                <div class="row">
+                    <div class="span12 text-left">@(Html.DisplayFor(m => historyTab, "History", new { Model.Structure.Identifier }))</div>
+                </div>
+            </div>*@
+
+        </div>
+
+        <input type="hidden" id="collectionName" name="collectionName" value="@collectionName" />
+        <input type="hidden" id="identifier" name="identifier" value="@identifier" />
+        <input type="hidden" id="detailViewGuid" name="detailViewGuid" value="@detailViewGuid" />
+            Html.RenderPartial("FormActions", Model.Buttons);
+    }
+    <script>
+        $("#@(guid.ToString())").bt_validate();
+        $(function () {
+            $(".num").bind("keypress", function(event) {
+                return (event.which >= 48 && event.which <= 57) ? true : false;
+            });
+        });
+
+
+    </script>
+</div>

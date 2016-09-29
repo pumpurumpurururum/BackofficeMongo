@@ -1,0 +1,334 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="14.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProjectGuid>{5223F478-114B-4D04-9EA6-B3A612DFE2AC}</ProjectGuid>
+    <OutputType>Library</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>BaseCms</RootNamespace>
+    <AssemblyName>BaseCms</AssemblyName>
+    <TargetFrameworkVersion>v4.5.2</TargetFrameworkVersion>
+    <FileAlignment>512</FileAlignment>
+    <SccProjectName>Svn</SccProjectName>
+    <SccLocalPath>Svn</SccLocalPath>
+    <SccAuxPath>Svn</SccAuxPath>
+    <SccProvider>SubversionScc</SccProvider>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="Microsoft.Practices.ServiceLocation, Version=1.3.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
+      <HintPath>..\packages\CommonServiceLocator.1.3\lib\portable-net4+sl5+netcore45+wpa81+wp8\Microsoft.Practices.ServiceLocation.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="Microsoft.Web.Infrastructure, Version=1.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
+      <HintPath>..\packages\Microsoft.Web.Infrastructure.1.0.0.0\lib\net40\Microsoft.Web.Infrastructure.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="Newtonsoft.Json, Version=7.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
+      <HintPath>..\packages\Newtonsoft.Json.7.0.1\lib\net45\Newtonsoft.Json.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="StructureMap, Version=3.1.6.186, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\structuremap.3.1.6.186\lib\net40\StructureMap.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="StructureMap.Net4, Version=3.1.6.186, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\structuremap.3.1.6.186\lib\net40\StructureMap.Net4.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="System" />
+    <Reference Include="System.configuration" />
+    <Reference Include="System.Core" />
+    <Reference Include="System.Drawing" />
+    <Reference Include="System.Linq.Dynamic, Version=1.0.3.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\System.Linq.Dynamic.1.0.4\lib\net40\System.Linq.Dynamic.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="System.Net.Http.Formatting, Version=5.2.3.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
+      <HintPath>..\packages\Microsoft.AspNet.WebApi.Client.5.2.3\lib\net45\System.Net.Http.Formatting.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="System.Runtime.Serialization" />
+    <Reference Include="System.Web" />
+    <Reference Include="System.Web.Helpers, Version=3.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
+      <HintPath>..\packages\Microsoft.AspNet.WebPages.3.2.3\lib\net45\System.Web.Helpers.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="System.Web.Http, Version=5.2.3.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
+      <HintPath>..\packages\Microsoft.AspNet.WebApi.Core.5.2.3\lib\net45\System.Web.Http.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="System.Web.Http.WebHost, Version=5.2.3.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
+      <HintPath>..\packages\Microsoft.AspNet.WebApi.WebHost.5.2.3\lib\net45\System.Web.Http.WebHost.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="System.Web.Mvc, Version=5.2.3.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
+      <HintPath>..\packages\Microsoft.AspNet.Mvc.5.2.3\lib\net45\System.Web.Mvc.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="System.Web.Razor, Version=3.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
+      <HintPath>..\packages\Microsoft.AspNet.Razor.3.2.3\lib\net45\System.Web.Razor.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="System.Web.WebPages, Version=3.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
+      <HintPath>..\packages\Microsoft.AspNet.WebPages.3.2.3\lib\net45\System.Web.WebPages.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="System.Web.WebPages.Deployment, Version=3.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
+      <HintPath>..\packages\Microsoft.AspNet.WebPages.3.2.3\lib\net45\System.Web.WebPages.Deployment.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="System.Web.WebPages.Razor, Version=3.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
+      <HintPath>..\packages\Microsoft.AspNet.WebPages.3.2.3\lib\net45\System.Web.WebPages.Razor.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="System.Xml.Linq" />
+    <Reference Include="System.Data.DataSetExtensions" />
+    <Reference Include="Microsoft.CSharp" />
+    <Reference Include="System.Data" />
+    <Reference Include="System.Net.Http" />
+    <Reference Include="System.Xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="Common\Attributes\CMSMetadataTypeAttribute.cs" />
+    <Compile Include="Common\Binders\JDataTableModelBinder.cs" />
+    <Compile Include="Common\Binders\JDataTableSettings.cs" />
+    <Compile Include="Common\FileUploader\Interfaces\IFileManager.cs" />
+    <Compile Include="Common\FileUploader\Interfaces\IFileManagerWithTemporaryStorage.cs" />
+    <Compile Include="Common\Image\Attributes\ImageMetadataAttribute.cs" />
+    <Compile Include="Common\Image\DefaultImageCropper.cs" />
+    <Compile Include="Common\Image\Interfaces\IImageCropper.cs" />
+    <Compile Include="Common\InstanceCreator.cs" />
+    <Compile Include="Common\Typograph\Interfaces\ITypograph.cs" />
+    <Compile Include="Common\Typograph\Interfaces\ITypographHelper.cs" />
+    <Compile Include="Common\Typograph\Typograph.cs" />
+    <Compile Include="Common\Validation\Attributes\Base\ValidationAttribute.cs" />
+    <Compile Include="Common\Validation\Attributes\CustomJavaScriptFunctionAttribute.cs" />
+    <Compile Include="Common\Validation\Attributes\RegularExpressionAttribute.cs" />
+    <Compile Include="Common\Validation\Attributes\RequiredAttribute.cs" />
+    <Compile Include="Common\Validation\Attributes\UniqueAttribute.cs" />
+    <Compile Include="Configuration\QuerySetterAssemblyElement.cs" />
+    <Compile Include="Configuration\QuerySetterAssemblyElementCollection.cs" />
+    <Compile Include="Configuration\QuerySetterAssemblyElementSection.cs" />
+    <Compile Include="Controllers\Base\CmsControllerBase.cs" />
+    <Compile Include="Controllers\DashboardController.cs" />
+    <Compile Include="Controllers\DetailController.cs" />
+    <Compile Include="Controllers\ImageController.cs" />
+    <Compile Include="Controllers\ImageUploadController.cs" />
+    <Compile Include="Controllers\LinkController.cs" />
+    <Compile Include="Controllers\ListController.cs" />
+    <Compile Include="Controllers\LoginController.cs" />
+    <Compile Include="Controllers\MenuWithTabsController.cs" />
+    <Compile Include="Controllers\RootController.cs" />
+    <Compile Include="Controllers\TreeController.cs" />
+    <Compile Include="Controllers\ValidationController.cs" />
+    <Compile Include="CRUDRepository\BeforeEditQueryBase.cs" />
+    <Compile Include="CRUDRepository\ChangeObjectStateId.cs" />
+    <Compile Include="CRUDRepository\CheckUniqueQueryBase.cs" />
+    <Compile Include="CRUDRepository\Core\BaseEnvelope.cs" />
+    <Compile Include="CRUDRepository\Core\ContextEnvelope.cs" />
+    <Compile Include="CRUDRepository\Core\ContextQueryInitializerBase.cs" />
+    <Compile Include="CRUDRepository\Core\DoubleContextEnvelope.cs" />
+    <Compile Include="CRUDRepository\Core\Intefaces\IQuery.cs" />
+    <Compile Include="CRUDRepository\Core\Intefaces\IQueryInitializer.cs" />
+    <Compile Include="CRUDRepository\Core\QueryBase.cs" />
+    <Compile Include="CRUDRepository\Core\QueryInitializerBase.cs" />
+    <Compile Include="CRUDRepository\Core\QueryObjectKey.cs" />
+    <Compile Include="CRUDRepository\Core\QueryResolver.cs" />
+    <Compile Include="CRUDRepository\CreateToManyLink.cs" />
+    <Compile Include="CRUDRepository\DeleteObject.cs" />
+    <Compile Include="CRUDRepository\DetailView\ClearDetailViewObjects.cs" />
+    <Compile Include="CRUDRepository\DetailView\SaveDetailViewObjects.cs" />
+    <Compile Include="CRUDRepository\EmptyParameter.cs" />
+    <Compile Include="CRUDRepository\GetByIdQueryBase.cs" />
+    <Compile Include="CRUDRepository\GetByIdsQueryBase.cs" />
+    <Compile Include="CRUDRepository\GetIdentifierQueryBase.cs" />
+    <Compile Include="CRUDRepository\GetLinkedListQueryBase.cs" />
+    <Compile Include="CRUDRepository\GetListCountQueryBase.cs" />
+    <Compile Include="CRUDRepository\GetListQueryBase.cs" />
+    <Compile Include="CRUDRepository\GetStateMachineQueryBase.cs" />
+    <Compile Include="CRUDRepository\GetStateQueryBase.cs" />
+    <Compile Include="CRUDRepository\GetTypeQueryBase.cs" />
+    <Compile Include="CRUDRepository\InsertObject.cs" />
+    <Compile Include="CRUDRepository\LookupGetItemQueryBase.cs" />
+    <Compile Include="CRUDRepository\LookupItem.cs" />
+    <Compile Include="CRUDRepository\LookupItemWithAddData.cs" />
+    <Compile Include="CRUDRepository\LookupListQueryBase.cs" />
+    <Compile Include="CRUDRepository\LookupListWithAddDataQueryBase.cs" />
+    <Compile Include="CRUDRepository\MoveUpDown.cs" />
+    <Compile Include="CRUDRepository\NewObjectQueryBase.cs" />
+    <Compile Include="CRUDRepository\Serialization\Attributes\XmlIgnoreAttribure.cs" />
+    <Compile Include="CRUDRepository\Serialization\Interfaces\ISerializer.cs" />
+    <Compile Include="CRUDRepository\Serialization\Interfaces\IXmlSerializable.cs" />
+    <Compile Include="CRUDRepository\Serialization\XmlIgnoreAttributeSetter.cs" />
+    <Compile Include="CRUDRepository\Serialization\XmlSerializableArgumentBase.cs" />
+    <Compile Include="CRUDRepository\Serialization\XmlSerializer.cs" />
+    <Compile Include="CRUDRepository\SessionDataContainer.cs" />
+    <Compile Include="CRUDRepository\ToManyGetQueryBase.cs" />
+    <Compile Include="CRUDRepository\ToManySave.cs" />
+    <Compile Include="CRUDRepository\UpdateObject.cs" />
+    <Compile Include="DependencyResolution\IoC.cs" />
+    <Compile Include="DependencyResolution\StructureMapDependencyResolver.cs" />
+    <Compile Include="DependencyResolution\StructureMapDependencyScope.cs" />
+    <Compile Include="Events\EventSource.cs" />
+    <Compile Include="Events\UserLoginEventArgs.cs" />
+    <Compile Include="Helpers\DataContractSerializerHelper.cs" />
+    <Compile Include="Helpers\ImageHelper.cs" />
+    <Compile Include="Helpers\StringHelper.cs" />
+    <Compile Include="Helpers\Transliteration.cs" />
+    <Compile Include="Helpers\Upload.cs" />
+    <Compile Include="Helpers\UploadUsage.cs" />
+    <Compile Include="Logging\Audit.cs" />
+    <Compile Include="Logging\Interfaces\ILogger.cs" />
+    <Compile Include="Logging\Metadata\AuditMetadata.cs" />
+    <Compile Include="Logging\Queries\AuditQuerySetter.cs" />
+    <Compile Include="Manager\IconsForMenu\MenuIcon.cs" />
+    <Compile Include="Manager\IconsForMenu\Util.cs" />
+    <Compile Include="Manager\Interfaces\IBackofficeManager.cs" />
+    <Compile Include="Menu\FilterDescription.cs" />
+    <Compile Include="Menu\MenuItem.cs" />
+    <Compile Include="Menu\SubmenuItem.cs" />
+    <Compile Include="MetadataValueProviders\Interfaces\IMetadataValueProvider.cs" />
+    <Compile Include="MetadataValueProviders\Interfaces\IPageSettingsValueProvider.cs" />
+    <Compile Include="Model\DataWithIdentifier.cs" />
+    <Compile Include="Model\DetailViewModel.cs" />
+    <Compile Include="Model\EditableCollectionViewModel.cs" />
+    <Compile Include="Model\FileOutput.cs" />
+    <Compile Include="Model\Filters\CollectionFilterViewModel.cs" />
+    <Compile Include="Model\Filters\StringPropertyFilterViewModel.cs" />
+    <Compile Include="Model\Interfaces\IMetadataProvider.cs" />
+    <Compile Include="Model\Item.cs" />
+    <Compile Include="Model\LinkedList\Base\LinkedListViewModel.cs" />
+    <Compile Include="Model\LinkedList\Base\LinkedListWithAddDataViewModel.cs" />
+    <Compile Include="Model\LinkedList\LinkedListMultipleViewModel.cs" />
+    <Compile Include="Model\LinkedList\LinkedListSingleViewModel.cs" />
+    <Compile Include="Model\LinkedList\LinkedListWithAddDataSingleViewModel.cs" />
+    <Compile Include="Model\ListViewMetadataModel.cs" />
+    <Compile Include="Model\ListViewModel.cs" />
+    <Compile Include="Model\MenuWithTabsViewModel.cs" />
+    <Compile Include="Model\ObjectCollectionWithId.cs" />
+    <Compile Include="Model\PopupEditViewModel.cs" />
+    <Compile Include="Model\RadioButtonListViewModel.cs" />
+    <Compile Include="Model\XmlEditorViewModel.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Security\AuthentificationPermission.cs" />
+    <Compile Include="Security\ChangeObjectStateIdPermission.cs" />
+    <Compile Include="Security\CollectionPermission.cs" />
+    <Compile Include="Security\DeleteObjectPermission.cs" />
+    <Compile Include="Security\ExternalSystemAccessPermission.cs" />
+    <Compile Include="Security\ExternalSystemPermission.cs" />
+    <Compile Include="Security\GetListPermission.cs" />
+    <Compile Include="Security\InsertObjectPermission.cs" />
+    <Compile Include="Security\Metadata\PermissionMetadata.cs" />
+    <Compile Include="Security\Metadata\RoleMetadata.cs" />
+    <Compile Include="Security\Metadata\UserMetadata.cs" />
+    <Compile Include="Security\Permission.cs" />
+    <Compile Include="Security\Queries\Security_ChangeObjectStateIdPermissionQuerySetter.cs" />
+    <Compile Include="Security\Queries\Security_DeleteObjectPermissionQuerySetter.cs" />
+    <Compile Include="Security\Queries\Security_ExternalSystemAccessPermissionQuerySetter.cs" />
+    <Compile Include="Security\Queries\Security_GetListPermissionQuerySetter.cs" />
+    <Compile Include="Security\Queries\Security_InsertObjectPermissionQuerySetter.cs" />
+    <Compile Include="Security\Queries\Security_RoleQuerySetter.cs" />
+    <Compile Include="Security\Queries\Security_UpdateObjectPermissionQuerySetter.cs" />
+    <Compile Include="Security\Queries\Security_UserQuerySetter.cs" />
+    <Compile Include="Security\Queries\Security_UserToRoleQuerySetter.cs" />
+    <Compile Include="Security\Role.cs" />
+    <Compile Include="Security\SecurityModel.cs" />
+    <Compile Include="Security\SecurityModelReader.cs" />
+    <Compile Include="Security\SecurityProvider.cs" />
+    <Compile Include="Security\UpdateObjectPermission.cs" />
+    <Compile Include="Security\User.cs" />
+    <Compile Include="Security\UserToRole.cs" />
+    <Compile Include="StateRepository\Base\StateBase.cs" />
+    <Compile Include="StateRepository\Base\StateMachineBase.cs" />
+    <Compile Include="StateRepository\Defaults\DefaultState.cs" />
+    <Compile Include="ThirdPartySystems\ExternalSystems\ExternalSystem.cs" />
+    <Compile Include="ViewsEngine\BaseCmsViewEngine.cs" />
+    <Compile Include="Views\ActionButtons\ActionButton.cs" />
+    <Compile Include="Views\Detail\Attributes\AutoTypographMetadataAttribute.cs" />
+    <Compile Include="Views\Detail\Attributes\DetailMetadataAttribute.cs" />
+    <Compile Include="Views\Detail\Attributes\EditableCollectionMetadataAttribute.cs" />
+    <Compile Include="Views\Detail\Attributes\HtmlEditorMetadataAttribute.cs" />
+    <Compile Include="Views\Detail\Attributes\PopupMetadataAttribute.cs" />
+    <Compile Include="Views\Detail\AutoTypographMetadata.cs" />
+    <Compile Include="Views\Detail\BootstrapValidationHelper.cs" />
+    <Compile Include="Views\Detail\DefaultDetailMetadataProvider.cs" />
+    <Compile Include="Views\Detail\DetailMetadata.cs" />
+    <Compile Include="Views\Detail\DetailMetadataItem.cs" />
+    <Compile Include="Views\Detail\EditableCollectionMetadata.cs" />
+    <Compile Include="Views\Detail\Enums\LinkMultiplier.cs" />
+    <Compile Include="Views\Detail\HtmlEditorMetadata.cs" />
+    <Compile Include="Views\Detail\ImageMetadata.cs" />
+    <Compile Include="Views\Detail\Interfaces\IDetailMetadata.cs" />
+    <Compile Include="Views\Detail\Interfaces\ITypeItem.cs" />
+    <Compile Include="Views\Detail\LinkMetadata.cs" />
+    <Compile Include="Views\Detail\PopupMetadata.cs" />
+    <Compile Include="Views\Detail\TypeItem.cs" />
+    <Compile Include="Views\LinkDDL\DDLMetadata.cs" />
+    <Compile Include="Views\LinkDDL\DefaultLinkDDLMetadataProvider.cs" />
+    <Compile Include="Views\Link\Attributes\DynamicLinkAttribute.cs" />
+    <Compile Include="Views\Link\Attributes\LinkedListsAttribute.cs" />
+    <Compile Include="Views\List\Attributes\ListMetadataAttribute.cs" />
+    <Compile Include="Views\List\Attributes\ListViewGroupingMetadataAttribute.cs" />
+    <Compile Include="Views\List\DefaultListMetadataProvider.cs" />
+    <Compile Include="Views\List\Interfaces\IListMetadata.cs" />
+    <Compile Include="Views\List\ListMetadata.cs" />
+    <Compile Include="Views\List\ListMetadataItem.cs" />
+    <Compile Include="Views\List\ListViewGroupingMetadata.cs" />
+    <Compile Include="Views\List\ListViewMetadata\Attributes\ListViewMetadataAttribute.cs" />
+    <Compile Include="Views\List\ListViewMetadata\Enums\ActionButtons.cs" />
+    <Compile Include="Views\List\ListViewMetadata\ListViewMetadata.cs" />
+    <Compile Include="Views\MetadataProviderBase.cs" />
+    <Compile Include="Views\Tree\Attributes\TreeMetadataAttribute.cs" />
+    <Compile Include="Views\Tree\DefaultTreeMetadataProvider.cs" />
+    <Compile Include="Views\Tree\Interfaces\ITreeMetadata.cs" />
+    <Compile Include="Views\Tree\TreeMetadata.cs" />
+    <Compile Include="Views\Tree\TreeMetadataItem.cs" />
+    <Compile Include="Views\Xml\Attributes\XmlEditorMetadataAttribute.cs" />
+    <Compile Include="Views\Xml\XmlDetailMetadataProvider.cs" />
+    <Compile Include="Views\Xml\XmlEditorMetadata.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="app.config" />
+    <None Include="packages.config" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\BaseCms.Model.Interfaces\BaseCms.Model.Interfaces.csproj">
+      <Project>{6bf951b9-92a2-4a83-b1f0-28787ebd3141}</Project>
+      <Name>BaseCms.Model.Interfaces</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\BackofficeDemo.MongoBase\BackofficeDemo.MongoBase.csproj">
+      <Project>{0bfa1139-2ed7-455e-ab0b-a9f0ea777812}</Project>
+      <Name>BackofficeDemo.MongoBase</Name>
+    </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="DefaultDbContext\" />
+  </ItemGroup>
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
+       Other similar extension points exist, see Microsoft.Common.targets.
+  <Target Name="BeforeBuild">
+  </Target>
+  <Target Name="AfterBuild">
+  </Target>
+  -->
+</Project>

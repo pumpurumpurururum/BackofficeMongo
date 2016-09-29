@@ -1,0 +1,11 @@
+﻿@model NewtonCMS5.Models.Filters.StringPropertyFilterViewModel
+@{
+    Layout = null;
+}
+<script>
+    $('#@(Model.Id)').keydown(function(event) {
+        if ( event.keyCode === 13 ) $(this).parents('#filter').find('input[type=button]').click();
+    });
+</script>
+<label for="@Model.Id">@Model.Caption</label>
+<input class="text-box single-line" id="@Model.Id"  name="@Model.Id" type="text" style="background-image: none; background-position: 0% 0%; background-repeat: repeat repeat;">

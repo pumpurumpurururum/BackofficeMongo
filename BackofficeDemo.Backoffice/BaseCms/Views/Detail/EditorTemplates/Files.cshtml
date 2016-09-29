@@ -1,0 +1,32 @@
+﻿@{
+    Layout = null;
+}
+
+
+
+
+<h2>Upload file</h2>
+<p>
+    <input id="fileInput" type="file"/>
+    <input type="button" value="Upload" id="btnFileUpload" />
+</p>
+
+<script type="text/javascript">
+            $("#btnFileUpload").click(function() {
+                var formData = new FormData();
+                var file = document.getElementById("fileInput").files[0];
+                formData.append("fileInput", file);
+
+                $.ajax({
+                    url: "FilesMultiUpload/UploadFiles",
+                    type: "POST",
+                    data: formData,
+                    contentType: false,
+                    processData: false,
+                    success: function() {
+                        alert("The file has been uploaded");
+                    }
+                });
+            });
+        
+</script>

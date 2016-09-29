@@ -1,0 +1,9 @@
+﻿@using BaseCms.Views.Detail
+@{ var metaData = (DetailMetadataItem) ViewBag.MetaData; }
+@{ var linkMetadata = metaData.LinkMetadata;}
+@{ var parameters = new { propertyName = metaData.PropertyName, collectionName = linkMetadata.CollectionName, isEditable = metaData.IsEditable }; }
+@{ var additionalClass = ViewBag.@class ?? "span6";}
+<div class="well well-small @additionalClass">
+    <span class="label">@ViewBag.Caption</span>
+    @Html.Action("GroupBox","Link", parameters)
+</div>

@@ -1,0 +1,35 @@
+﻿@model BaseCms.Model.RadioButtonListViewModel
+<input name="@Model.PropertyName" type="radio" value="" checked class="hidden"/>
+<div class="clearfix"></div>
+@{var i =0;}
+
+
+ <div class="form-inline">
+@foreach (var element in Model.Preloaded)
+{
+    var guid = Guid.NewGuid();
+   
+        <label class="radio" for="@guid.ToString()">
+            <input 
+                name="@Model.PropertyName" 
+                type="radio" 
+                class="ace" 
+                id="@guid.ToString()" 
+                value="@element.Id" 
+                
+                @if ((i++ == 0 && Model.Selected == "0"  ) || Model.Selected == element.Id)
+                {
+                    @:checked ='checked'
+
+                }
+                
+                 @(Model.IsEditable ? String.Empty : "disabled='disabled'") 
+                
+                >
+            <span class="lbl"></span>
+            @element.Name
+        </label>
+        
+    
+}
+     </div>

@@ -1,0 +1,287 @@
+﻿@using BaseCms.Helpers
+@using BaseCms.Views.Detail
+@{
+    int? collectionIndex = ViewBag.CollectionIndex;
+    string propertyName = collectionIndex.HasValue
+                              ? String.Format("{0}.{1}[{2}]", ViewBag.CollectionName, ViewBag.MetaData.PropertyName, collectionIndex.Value)
+                              : ViewBag.MetaData.PropertyName as string;
+    var imageMetadata = ViewBag.MetaData.ImageMetadata as ImageMetadata;
+    var guid = Guid.NewGuid().ToString();
+    int width = 0, height = 0;
+    if (imageMetadata != null)
+    {
+        width = imageMetadata.Width;
+        height = imageMetadata.Height;
+    }
+    
+    var value = ViewData.TemplateInfo.FormattedModelValue as string;
+    if (String.IsNullOrEmpty(value) && !String.IsNullOrEmpty(ImageHelper.ImageFileName))
+    {
+        value = ImageHelper.ImageFileName;//todo:временное решение, нужно правильно заполнить ViewData.TemplateInfo.FormattedModelValue
+    }
+}
+
+<div class="col-md-4" style="left: -12px">
+    <input type="hidden" name="@propertyName" id="@guid-result" value="@ViewData.TemplateInfo.FormattedModelValue" />
+    <input type="file" accept="image/*" id="@guid" style="visibility: hidden; width: 1px; height: 1px" />
+    <a href="#" onclick="@(((DetailMetadataItem) ViewBag.MetaData).IsEditable ? "document.getElementById('" + guid + "').click();" : String.Empty); return false;" class="form-image-preview" id="@guid-preview">
+        <div id="@guid-remove" @(!value.Equals("/Image/") ? "class = test ace-icon fa fa-times" : String.Empty)>
+            <i class="icon-remove icon-white"></i>
+        </div>
+        
+         <img src="/Image/Index/?path=@value" />   
+        
+    </a>
+</div>
+
+
+<div id="@guid-modal-form" class="modal " style="" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="blue bigger">Select Save image area</h4>
+            </div>
+            <div class="modal-body overflow-visible">
+                <div class="row">
+                    <div id="@guid-container">
+                        <img src="" class="img-responsive" />
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button id="@guid-ok" class="btn btn-sm btn-primary"> <i class="ace-icon fa fa-check"></i>
+                    Ok
+                </button>
+                <button id="@guid-cancel"  class="btn btn-sm" data-dismiss="modal"> <i class="ace-icon fa fa-times"></i>
+                    Cancel
+                </button>
+            </div>
+        </div>
+        </div>
+</div>
+
+<script>
+
+    $(document).ready(function () {
+
+        var scaleCmsScopeName = 1;
+        var location_CMSScopeName = "@value.Replace("\\", "\\\\")";
+
+        function getFullImageLocation(location) {
+            return "/Image/Temp/?path=" + location + "&" + new Date().getTime();
+        }
+
+        $("#@guid").on("change", function () {
+            
+            var fileData = $("#@guid").prop("files")[0];
+            var data = new FormData();
+            data.append("file", fileData);
+           
+            console.log("data");
+            console.log(data);
+
+            blackout.start();
+
+            $.ajax({
+                url: "/ImageUpload/Upload",
+                type: "POST",
+                datatype: "json",
+                data: data,
+                cache: false,
+                contentType: false,
+                processData: false,
+                success: function(result) {
+                    if (result.success) {
+                        location_CMSScopeName = result.location;
+                        console.log(result.location);
+                        // Загрузка изображения в невидимый элемент необходима для получения значений его ширины и высоты.
+                        $('<img/>').attr('src', getFullImageLocation(result.location)).load(function() {
+                            var image = $("#@guid-container").children("img");
+                            image.attr('src', "/Image/Temp/?path=" + result.location).load(function() {
+                                console.log(result.location);
+                                    cropper.update();
+                            });
+
+
+                            var cWidth = 530;
+                            var width = @width;
+                            var height = @height;
+                            var imageWidth = this.naturalWidth;
+                            var imageHeight = this.naturalHeight;
+                            console.log("imageWidth");
+                            console.log(imageWidth);
+                            console.log("imageHeight");
+                            console.log(imageHeight);
+                            
+                            scaleCmsScopeName = 1;
+
+                            if (imageWidth > cWidth) {
+                                scaleCmsScopeName = cWidth / imageWidth;
+                            }
+                            
+                            if (imageWidth < width) {
+                                var koef2 = imageWidth / width;
+                                width = imageWidth;
+                                height = height* koef2;
+                               
+                            } else if (imageHeight < height) {
+                                var koef3 = imageHeight / height;
+                                height = imageHeight;
+                                width = width * koef3;
+                            }
+                            
+                            var defaultWidth = Math.max(imageWidth, width) * scaleCmsScopeName - 10;
+                            var defaultHeight = Math.max(imageHeight, height) * scaleCmsScopeName - 10;
+                            
+                            console.log("defaultWidth");
+                            console.log(defaultWidth);
+                            console.log("defaultHeight");
+                            console.log(defaultHeight);
+
+                            if ((width > 0) && (height > 0)) {
+                                var ratio = width / height;
+                                defaultWidth = defaultHeight * ratio;
+                                console.log("ratio");
+                                console.log(ratio);
+                            }
+                            
+                            var minWidth = width * scaleCmsScopeName;
+                            var minHeight = height * scaleCmsScopeName;
+                            
+                            console.log("minWidth");
+                            console.log(minWidth);
+                            console.log("minHeight");
+                            console.log(minHeight);
+
+                            console.log("defaultWidth");
+                            console.log(defaultWidth);
+                            console.log("defaultHeight");
+                            console.log(defaultHeight);
+                           
+                            var cropper = image.imgAreaSelect({
+                                handles: true,
+                                show: true,
+                                x1: 0,
+                                x2: 100,
+                                y1: 0,
+                                y2: 100,
+                                maxWidth: imageWidth, 
+                                maxHeight: imageHeight,
+                                imageWidth: imageWidth,
+                                imageHeight: imageHeight,
+                                zIndex: 2013,
+                                instance: true
+                            });
+                           
+                            console.log("cropper");
+                            console.log(cropper);
+
+                            $("#@guid-modal-form").appendTo("body").modal({ backdrop: "static" });
+                        }).appendTo($("body")).hide();
+                    } 
+                },
+                complete: function() {
+                    blackout.end();
+                }
+            });
+        });
+
+        $("#@guid-cancel").click(function() {
+            $("#@guid-container")
+                .children("img")
+                .imgAreaSelect({ instance: true })
+                .cancelSelection();
+            
+            $("#@guid").val("");
+        });
+        
+        $("#@guid-ok").click(function () {
+            var cropper = $("#@guid-container")
+                .children("img")
+                .imgAreaSelect({ instance: true });
+
+           
+            var selection = cropper.getSelection();
+            console.log("selection");
+            console.log(selection);
+            console.log("scale_CMSScopeName_");
+            console.log(scaleCmsScopeName);
+
+            var x1 = Math.floor(selection.x1 );
+            console.log("x1");
+            console.log(x1);
+            var x2 = Math.floor(selection.x2 );
+            console.log("x2");
+            console.log(x2);
+            var y1 = Math.floor(selection.y1 );
+            console.log("y1");
+            console.log(y1);
+            var y2 = Math.floor(selection.y2 );
+            console.log("y2");
+            console.log(y2);
+
+            var resize = @((!imageMetadata.FreeSize).ToString().ToLowerInvariant());
+           
+            blackout.start();
+
+            $.ajax({
+                url: "/ImageUpload/Crop",
+                type: "POST",
+                datatype: "json",
+                data: {
+                    path: location_CMSScopeName,
+                    x1: x1,
+                    x2: x2,
+                    y1: y1,
+                    y2: y2,
+                    width: @width,
+                    height: @height,
+                    resize: resize
+                },
+                success: function(response) {
+                    if (response.success) {
+                        $("#@guid-preview img").attr("src", getFullImageLocation(location_CMSScopeName));
+                        $("#@guid-remove").addClass("ace-icon");
+                        $("#@guid-remove").addClass("fa");
+                        $("#@guid-remove").addClass("fa-times");
+                        $("#@guid-result").val(location_CMSScopeName);
+                        $("#@guid-modal-form").modal('hide');
+                       
+
+                        cropper.cancelSelection();
+                        blackout.end();
+                    } else {
+                        blackout.end();
+                        blackout.alert(response.error, "Error");
+                    }
+                },
+                error: function() {
+                    blackout.end();
+                    blackout.alert("Server error");
+                }
+            });
+        });
+
+        $("#@guid-remove").click(function() {
+            $("#@guid-remove").removeClass("ace-icon");
+            $("#@guid-remove").removeClass("fa");
+            $("#@guid-remove").removeClass("fa-times");
+            $("#@guid-preview img").attr("src", "/Image/");
+            $("#@guid-result").val("");
+        });
+
+        $("#@guid-preview div").click(function(event) {
+            event.preventDefault();
+            event.stopPropagation();
+        });
+
+        $("#@guid-modal-form").find('.modal-body').css(
+            {
+                width: 'auto',
+                height: 'auto',
+                'max-height': '100%'
+            });
+       
+    });
+
+</script>

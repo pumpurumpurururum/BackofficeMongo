@@ -1,0 +1,13 @@
+﻿@using System.Globalization
+@model DateTime?
+@if (Model.HasValue)
+{
+  if (!String.IsNullOrEmpty((string) ViewBag.MetaData.Format))
+  {
+      <p>@Model.Value.ToString((string) ViewBag.MetaData.Format)</p>
+  }
+  else
+  {
+      <p>@Model.Value.ToString(CultureInfo.InvariantCulture)</p>
+  }
+}

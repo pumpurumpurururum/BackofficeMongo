@@ -1,0 +1,43 @@
+﻿@model BaseCms.Model.Filters.StringPropertyFilterViewModel
+@{
+    var guid = Guid.NewGuid();
+
+    var defaultValue = DateTime.Now;
+    var defValue = Model.DefaultValue;
+
+    var needToSelectDate = !String.IsNullOrEmpty(defValue);
+    
+    if (needToSelectDate)
+    {
+        if (!DateTime.TryParse(defValue, out defaultValue))
+        {
+            defaultValue = DateTime.Now;
+        }
+    }
+}
+<label for="@(Model.Id)">@Model.Caption</label>
+
+<script>
+  
+    $('#datepicker@(guid)').datepicker({ autoclose: true, language: 'ru' });
+   
+
+    if ('@(needToSelectDate)' === 'True')
+    {
+        $('#datepicker@(guid)').datepicker('setValue', '@(defaultValue.ToString("dd.MM.yyyy"))');}
+  
+
+        $('#@(Model.Id)').keydown(function (event) {
+        if (event.keyCode === 13) $(this).parents('#filter').find('input[type=button]').click();
+    });
+   
+</script>
+<div class="input-append date" id="datepicker@(guid)" data-date="@(defaultValue.ToString("dd.MM.yyyy"))" data-date-format="dd.mm.yyyy">
+    @Html.TextBox(Model.Id, string.Empty, new { @class = "text-box single-line", id=Model.Id })
+    <span class="add-on"><i class="icon-calendar"></i></span>
+</div>
+
+
+
+   
+   

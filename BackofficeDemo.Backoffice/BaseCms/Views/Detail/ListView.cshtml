@@ -1,0 +1,691 @@
+﻿@using System.Reflection
+@using System.Text
+@using BaseCms.Common
+@using BaseCms.Common.Attributes
+@using BaseCms.Model
+@using BaseCms.Model.Interfaces
+@using BaseCms.Views.List
+@using BaseCms.Views.List.ListViewMetadata.Enums
+@model ListViewModel
+
+@{
+    var listMetadataProvider = Model.ListViewSettings.ListMetadataProviderType == null ? new DefaultListMetadataProvider() : InstanceCreator.CreateInstance<IMetadataProvider<ListMetadata>>(Model.ListViewSettings.ListMetadataProviderType);
+    var metaData = listMetadataProvider.GetMetadata(Model.Structure.Type);
+
+    var activeElements = metaData.Items.Where(w => !w.IsHidden).OrderBy(p => p.Order).ToList();
+    var guid = Guid.NewGuid().ToString("N");
+    string collectionIndex = ViewBag.CollectionIndex;
+    if (!string.IsNullOrEmpty(collectionIndex))
+    {
+        guid = guid + "_" + (collectionIndex == "-9999" ? "__index__" : collectionIndex);
+    }
+    
+    var typeName = Model.Structure.Identifier;
+
+    var dom = Model.ListViewSettings.JDataTableDom;
+    
+
+    var mRenderDictionary = new Dictionary<string, StringBuilder>();
+
+    var initSortIndex = 0;
+    var initSortDir = "asc";
+    var initSortableItem = activeElements.FirstOrDefault(i => i.InitSort);
+    if (initSortableItem != null)
+    {
+        initSortIndex = activeElements.IndexOf(initSortableItem);
+        initSortDir = initSortableItem.InitSortDir;
+    }
+    
+    var noSortColumnIndexesStr = new StringBuilder();
+    
+    var sClassDictionary = new Dictionary<string, StringBuilder> {{"hide", new StringBuilder()}};
+    sClassDictionary["hide"].Append("0,");
+    
+    var sWidthDictionary = new Dictionary<int, StringBuilder>();
+    
+    var groupingColumnIndex = 0;
+    
+    for (var i = 1; i < activeElements.Count; i++)
+    {
+        if (activeElements[i].NoSort)
+        {
+            noSortColumnIndexesStr.AppendFormat("{0},", i);
+        }
+        
+        var template = activeElements[i].Template;
+        if (!String.IsNullOrEmpty(template))
+        {
+            if (!mRenderDictionary.ContainsKey(template))
+            {
+                mRenderDictionary.Add(template, new StringBuilder());
+            }
+
+            mRenderDictionary[template].AppendFormat("{0},", i);
+        }
+
+        var columnClass = activeElements[i].ColumnClass;
+        if (!String.IsNullOrEmpty(columnClass))
+        {
+            if (!sClassDictionary.ContainsKey(columnClass))
+            {
+                sClassDictionary.Add(columnClass, new StringBuilder());
+            }
+
+            sClassDictionary[columnClass].AppendFormat("{0},", i);
+        }
+
+        if (activeElements[i].Width.HasValue)
+        {
+            var width = activeElements[i].Width.Value;
+            if (!sWidthDictionary.ContainsKey(width))
+            {
+                sWidthDictionary.Add(width, new StringBuilder());
+            }
+
+            sWidthDictionary[width].AppendFormat("{0},", i);
+        }
+
+        if (activeElements[i].IsGroupColumn)
+        {
+            groupingColumnIndex = i;
+        }
+    }
+    
+    if (Model.IsEditable)
+    {
+        noSortColumnIndexesStr.Append(activeElements.Count);
+
+        var actionButtonWidth = 0;
+        if (Model.ListViewSettings.Buttons.HasFlag(ActionButtons.CustomButtons))
+        {
+            actionButtonWidth += Model.ListViewSettings.CustomButtonsWidth;
+        }
+        if (Model.ListViewSettings.Buttons.HasFlag(ActionButtons.EditButton))
+        {
+            actionButtonWidth += 20;
+        }
+        if (Model.ListViewSettings.Buttons.HasFlag(ActionButtons.DeleteButton))
+        {
+            actionButtonWidth += 20;
+        }
+        if (Model.ListViewSettings.Buttons.HasFlag(ActionButtons.UnlinkButton))
+        {
+            actionButtonWidth += 20;
+        }
+        if (Model.ListViewSettings.Buttons.HasFlag(ActionButtons.MoveButtons))
+        {
+            actionButtonWidth += 40;
+        }
+        
+        if (actionButtonWidth > 0)
+        {
+            if (sWidthDictionary.ContainsKey(actionButtonWidth))
+            {
+                sWidthDictionary[actionButtonWidth].Append(activeElements.Count);
+            }
+            else
+            {
+                sWidthDictionary.Add(actionButtonWidth, new StringBuilder(activeElements.Count.ToString()));
+            }
+        }
+
+        sClassDictionary.Add("editable-list-view-actions", new StringBuilder(activeElements.Count.ToString()));
+    }
+    var noSortColumsDescription = noSortColumnIndexesStr.ToString();
+
+    var linkedCollectionName = typeName;
+    var linkedColumnClass = "hide";
+    var openTabTitle = Model.Structure.Type.GetCustomAttribute<CmsMetadataTypeAttribute>(true).CollectionTitleSingular;
+    if (Model.ListViewSettings.LinkedCollectionType != null)
+    {
+        linkedCollectionName = Model.ListViewSettings.LinkedCollectionType.Name;
+        //linkedColumnClass = "linkedId";
+        openTabTitle = Model.ListViewSettings.LinkedCollectionType.GetCustomAttribute<CmsMetadataTypeAttribute>(true).CollectionTitleSingular;
+    }
+
+    var listViewMetadataModel = new ListViewMetadataModel
+        {
+            DataTableId = guid,
+            DataTableName = "oTable_" + guid,
+            DataTableUrl = Model.Url,
+            CollectionName = typeName,
+            UpperCollectionName = Model.UpperCollectionName,
+            UpperIdentifier = Model.UpperIdentifier,
+            DetailViewGuid = Model.DetailViewGuid,
+            ListMetadataProviderType = Model.ListViewSettings.ListMetadataProviderType,        
+            PopupMetadataProviderType = Model.ListViewSettings.PopupMetadataProviderType,
+            UploadImagesUrl = Model.ListViewSettings.UploadImagesUrl,
+            PopupSettings = Model.PopupSettings
+        };
+}
+
+@* Фильтры *@
+@if (!String.IsNullOrEmpty(Model.ListViewSettings.FilterPartial))
+{
+    @Html.Partial(Model.ListViewSettings.FilterPartial, listViewMetadataModel)
+}
+
+@* Сама таблица *@
+<table class="table table-striped table-bordered table-hover dataTable" style="clear: both;" id="@guid">
+    <thead>
+        <tr>
+            @foreach (var column in activeElements)
+            {
+                <th>@column.Display</th>
+            }
+            @if (Model.IsEditable)
+            {
+                <th></th>    
+            }
+        </tr>
+    </thead>
+    <tbody></tbody>
+</table>
+
+@* Отображение в случае, когда редактирование запрещено *@
+@if (!Model.IsEditable)
+{
+    <script>
+        if ('@guid'.indexOf('_index__') === -1) {
+
+            varoTable_@(guid) = undefined;
+            varproperties_@(guid) = [
+                @foreach (var p in activeElements)
+                {
+                    @Html.Raw($"\"{p.PropertyName}\",")
+                }
+            ];
+
+            $(document).ready(function() {
+                oTable_@(guid)= $("#@guid").dataTable({
+                    "sDom": "@Html.Raw(dom)",
+                    @if (Model.ListViewSettings.GroupingMetadata != null)
+                {
+                    <text>
+                    "aaSorting":[[1,"asc"]],    
+                    </text>
+                }
+                    else
+                {
+                    <text>
+                    "aaSorting": [[@(initSortIndex), "@(initSortDir)"]],                    
+                    </text>
+                }
+                    "bProcessing": true,
+                    "bServerSide": true,
+                    "sAjaxSource": "@Html.Raw(Model.Url)",
+                    "aoColumnDefs": [
+                        @if (!string.IsNullOrEmpty(noSortColumsDescription))
+                    {
+                        <text>
+                                { "bSortable": false, "aTargets": [@(noSortColumsDescription)] },
+                            </text>
+                    }
+                        @foreach (var mRenderDescription in mRenderDictionary)
+                    {
+                        <text>
+                                {
+                                    "mRender":
+                                        function (data, type, row) {
+                                            @Html.Partial("DataTablesTemplates/" + mRenderDescription.Key)
+                                        },
+                                    "aTargets": [@mRenderDescription.Value.ToString()]
+                                },
+                            </text>
+                    }
+                        @foreach (var sClassDescription in sClassDictionary)
+                    {
+                        <text>
+                                {
+                                    "sClass": "@(sClassDescription.Key)",
+                                    "aTargets": [@sClassDescription.Value.ToString()]
+                                },
+                            </text>
+                    }
+                        @foreach (var sWidthDescription in sWidthDictionary)
+                    {
+                        <text>
+                                {
+                                    "sWidth": "@(sWidthDescription.Key.ToString())px",
+                                    "aTargets": [@sWidthDescription.Value.ToString()]
+                                },
+                            </text>
+                    }
+                    ],
+                    "fnDrawCallback": function(oSettings) {
+
+                        oTable_@(guid).$("tr").tooltip({
+                            selector: '[data-toggle=tooltip]'
+                        });
+
+                    },
+                    "fnServerData": function(sSource, aoData, fnCallback) {
+                        $.ajax({
+                            "dataType": 'json',
+                            "type": "POST",
+                            "url": sSource,
+                            "data": aoData,
+                            "success": fnCallback,
+                            "error": function(xhr, textStatus, error) {
+                                blackout.alert('Ошибка сервера. Перезагрузите страницу.');
+                                oTable_@(guid).fnProcessingIndicator(false);
+                            }
+                        });
+                    }
+                });
+
+                @if (Model.ListViewSettings.GroupingMetadata != null)
+            {
+                <text>
+                oTable_@(guid).rowGrouping({ iGroupingColumnIndex: @(groupingColumnIndex), bHideGroupingColumn: @(Model.ListViewSettings.GroupingMetadata.HideGroupingColumn.ToString().ToLower()), bExpandableGrouping: @(Model.ListViewSettings.GroupingMetadata.ExpandableGrouping.ToString().ToLower()) });
+                </text>
+            }
+            });
+
+            @if (!string.IsNullOrEmpty(openTabTitle))
+            {
+                <text>
+            $("#@guid tbody").click(function (event) {
+                var tdClass = $(event.target).closest('td').attr('class');
+                if (tdClass.indexOf('group') > -1) return;
+                var id = $(event.target.parentNode).children("td[class^='@linkedColumnClass']").text();
+                tab.open('@openTabTitle #', '@linkedCollectionName', id);
+            });
+            </text>
+            }
+        }
+    </script>
+    return;
+}
+
+@* Элементы под таблицей *@
+@if (!String.IsNullOrEmpty(Model.ListViewSettings.FooterPartial))
+{
+    @Html.Partial("ListViewFooters/" + Model.ListViewSettings.FooterPartial, listViewMetadataModel)
+}
+
+@* Скрипты *@
+<script>
+    if ('@guid'.indexOf('_index__') == -1) {
+        var oTable_@guid = undefined;
+        var properties_@guid = [
+            @foreach (var p in activeElements)
+        {
+            @Html.Raw(String.Format("\"{0}\",", p.PropertyName))
+        }
+        ];
+
+        $(document).ready(function() {
+            oTable_@guid = $("#@guid").dataTable({
+                @if (Model.ListViewSettings.GroupingMetadata != null)
+                {
+                    <text>
+                "aaSorting":[[1,"asc"]],    
+                    </text>
+                }
+                else
+                {
+                    <text>
+                "aaSorting": [[@(initSortIndex), "@(initSortDir)"]],                    
+                    </text>
+                }
+                "sDom": "@Html.Raw(dom)",
+                "bPaginate": "@Model.ListViewSettings.Paginate",
+                "bProcessing": true,
+                "bServerSide": true,
+                "sAjaxSource": "@Html.Raw(Model.Url)",
+                "aoColumnDefs": [
+                    @if (!string.IsNullOrEmpty(noSortColumsDescription))
+                    {
+                        <text>
+                            { "bSortable": false, "aTargets": [@(noSortColumsDescription)] },
+                        </text>
+                    }
+                    @foreach (var mRenderDescription in mRenderDictionary)
+                    {
+                        <text>
+                                {
+                                    "mRender":
+                                        function (data, type, row) {                                        
+                                            @Html.Partial("DataTablesTemplates/" + mRenderDescription.Key)
+                                        },
+                                    "aTargets": [@mRenderDescription.Value.ToString()]
+                                },
+                        </text>
+                    }
+                    @if (Model.ListViewSettings.Buttons > 0)
+                    {
+                        <text>
+                                {
+                                    "mRender":
+                                        function (data, type, row) {
+                                            @Html.Partial("DataTablesTemplates/Buttons", Model.ListViewSettings.Buttons, new ViewDataDictionary() {{"CustomButtonsContent", Model.ListViewSettings.CustomButtonsContent.Replace("@DataTableId", guid)}})
+                                        },
+                                    "aTargets": [@activeElements.Count]
+                                },
+                            </text>
+                    }
+                    @foreach (var sClassDescription in sClassDictionary)
+                    {
+                        <text>
+                                {
+                                    "sClass": "@(sClassDescription.Key)",
+                                    "aTargets": [@sClassDescription.Value.ToString()]
+                                },
+                        </text>
+                    }
+                    @foreach (var sWidthDescription in sWidthDictionary)
+                    {
+                        <text>
+                                {
+                                    "sWidth": "@(sWidthDescription.Key.ToString())px",
+                                    "aTargets": [@sWidthDescription.Value.ToString()]
+                                },
+                        </text>
+                    }
+                ],
+                "fnDrawCallback": function(oSettings) {
+
+                    oTable_@(guid).$("tr").tooltip({
+                        selector: '[data-toggle=tooltip]'
+                    });
+
+                    oTable_@(guid).$(".editable-list-view-edit").click(function() {
+                        editItem@(guid)(this);
+                    });
+
+                    oTable_@(guid).$(".editable-list-view-delete").click(function() {
+                        deleteItem@(guid)(this);
+                    });
+
+                    oTable_@(guid).$(".editable-list-view-unlink").click(function() {
+                        deleteItem@(guid)(this, true);
+                    });
+
+                    oTable_@(guid).$(".editable-list-view-up").click(function() {
+                        moveItem@(guid)(this, true);
+                    });
+
+                    oTable_@(guid).$(".editable-list-view-down").click(function() {
+                        moveItem@(guid)(this, false);
+                    });
+
+                    oTable_@(guid).$('td[class*="inline-editable"]').editable('/Detail/InlineEdit', {
+                        cssclass: 'list-view-editable-form',
+                        "callback": function(sValue, settings) {
+                            var aPos = oTable_@(guid).fnGetPosition(this);
+                            oTable_@(guid).fnUpdate(sValue, aPos[0], aPos[1]);
+                        },
+                        "submitdata": function(value, settings) {
+                            return {
+                                "collectionName": '@(typeName)',
+                                "identifier": $(this).parent().find(".hide").html(),
+                                "propertyName": properties_@(guid)[oTable_@(guid).fnGetPosition(this)[2]],
+                                "detailViewGuid": '@(Model.DetailViewGuid)'
+                            };
+                        },
+                        "onblur": "ignore",
+                        intercept: function(jsondata) {
+                            var response = jQuery.parseJSON(jsondata);
+                            if (!response.success) {
+                                blackout.alert(response.error, "Error");
+                            }
+                            return (response.result);
+                        },
+                        submit: 'Ок',
+                        cancel: 'Cancel'
+                    });
+
+                    @if (!string.IsNullOrEmpty(openTabTitle))
+                    {
+                        <text>
+                    oTable_@(guid).$('td:not([class*=editable])').click(function (event) {
+                        var tdClass = $(event.target).closest('td').attr('class');
+                        if (tdClass.indexOf('group') > -1) return;
+                        var id = $(event.target.parentNode).children("td[class^='@linkedColumnClass']").text();
+                        tab.open('@openTabTitle #', '@linkedCollectionName', id);
+                    });
+                        </text>
+                    }
+                },
+                "fnServerData": function(sSource, aoData, fnCallback) {
+                    $.ajax({
+                        "dataType": 'json',
+                        "type": "POST",
+                        "url": sSource,
+                        "data": aoData,
+                        "success": fnCallback,
+                        "error": function(xhr, textStatus, error) {
+                            blackout.alert('Ошибка сервера. Перезагрузите страницу.');
+                            oTable_@(guid).fnProcessingIndicator(false);
+                        }
+                    });
+                }
+            });
+
+            @if (Model.ListViewSettings.GroupingMetadata != null)
+            {
+                <text>
+            oTable_@(guid).rowGrouping({ iGroupingColumnIndex: @(groupingColumnIndex), bHideGroupingColumn: @(Model.ListViewSettings.GroupingMetadata.HideGroupingColumn.ToString().ToLower()), bExpandableGrouping: @(Model.ListViewSettings.GroupingMetadata.ExpandableGrouping.ToString().ToLower()) });
+                </text>
+            }
+
+        });
+
+        function editItem@(guid)(editButton)
+        {
+            var id = $(editButton).parents("tr").find(".hide").html();
+            $.ajax({
+                url: "@Url.Action("PopupEdit", "Detail")",
+                type: "POST",
+                data: {
+                    viewName: "@Model.PopupSettings.ViewName",
+                    collectionName: "@typeName",
+                    identifier: id,
+                    upperCollectionName: '@(Model.UpperCollectionName)',
+                    upperIdentifier: '@(Model.UpperIdentifier)',
+                    detailViewGuid: '@(Model.DetailViewGuid)',
+                    customDetailMetadataProvider: '@(Model.ListViewSettings.PopupMetadataProviderType == null ? String.Empty : Model.ListViewSettings.PopupMetadataProviderType.FullName)',
+                    title: '@(Model.PopupSettings.Title)',
+                    height: '@(Model.PopupSettings.Height)',
+                    width: '@(Model.PopupSettings.Width)',
+                    noScroll: '@(Model.PopupSettings.NoScroll)',
+                    top: '@(Model.PopupSettings.Top)',
+                    left: '@(Model.PopupSettings.Left)',
+                    screenWidth: screen.width
+                },
+                dataType: "html",
+                success: function(html) {
+                    var view = $("<div></div>").html(html);
+                    var form = view.find("form");
+                    $("body").append(view);
+                    var modal = view.find(".modal");
+                    modal.modal({ backdrop: "static" });
+                    view.find(".popup-edit-cancel").click(function() {
+
+                        // Очищаем страницу от остатков ImageEditor
+                        $('div.imgareaselect-selection').parent().remove();
+                        $('div.imgareaselect-outer').remove();
+                        $('div.modal-backdrop').remove();
+
+                        modal.modal("hide");
+                        view.remove();
+                    });
+                    view.find(".popup-edit-ok").click(function() {
+
+                        $.bt_validate.result = true;
+                        $.bt_validate.form.find('input[validate],select[validate],textarea[validate]').trigger('blur');
+                        if (!$.bt_validate.result) {
+                            return;
+                        }
+
+                        modal.modal("hide");
+                        view.remove();
+
+                        form.ajaxForm({
+                            beforeSubmit: function(arr, form, options) {
+                                blackout.start();
+                                return 0;
+                            },
+                            success: function(response, statusText, xhr, $form) {
+                                if (response.success) {
+                                    oTable_@(guid).fnReloadAjax("@Html.Raw(Model.Url)");
+                                } else {
+                                    blackout.alert(response.error, "Error");
+                                }
+                            },
+                            complete: function() {
+                                blackout.end();
+
+                                // Очищаем страницу от остатков ImageEditor
+                                $('div.imgareaselect-selection').parent().remove();
+                                $('div.imgareaselect-outer').remove();
+                                $('div.modal-backdrop').remove();
+                            }
+                        });
+                        form.submit();
+                    });
+                },
+            });
+        }
+
+        function deleteItem@(guid)(deleteButton, unbindMode)
+        {
+            var view = deleteButton;
+            var questionText = unbindMode == undefined ? "Are you sure you want to delete?" : "Are you sure you want to unbind?";
+            deletion.confirm(questionText, "Yes", "No", function() {
+                var id = $(view).parents("tr").find(".hide").html();
+                var td = $(view).parents("td")[0];
+                var rowNumber = oTable_@(guid).fnGetPosition(td)[0];
+                $.ajax({
+                    url: "Detail/Remove",
+                    datatype: "json",
+                    type: "post",
+                    data: {
+                        collectionName: "@(typeName)",
+                        items: id,
+                        upperIdentifier: '@(Model.UpperIdentifier)',
+                        detailViewGuid: '@(Model.DetailViewGuid)'
+                    },
+                    context: view,
+                    async: false,
+                    success: function(result) {
+                        if (result.success) {
+                            oTable_@(guid).fnDeleteRow(rowNumber);
+                        } else {
+                            blackout.alert(result.error, "Error");
+                        }
+                    },
+                });
+            });
+        }
+
+        function moveItem@(guid)(rowToMove, up) {
+
+            var row1 = $($(rowToMove).parents("tr")[0]);
+            var row2 = up ? row1.prev()[0] : row1.next()[0];
+
+            var needToReloadTable = false;
+
+            if (row2 == undefined) {
+                var dataTableSettings = oTable_@(guid).fnSettings();
+
+                if (!dataTableSettings.oFeatures.bPaginate) return;
+
+                if ((up) && (dataTableSettings._iDisplayStart == 0)) return;
+
+                if (!up) {
+                    var lastPage = Math.ceil(dataTableSettings._iRecordsTotal / dataTableSettings._iDisplayLength);
+                    var currentPage = Math.ceil(dataTableSettings._iDisplayStart / dataTableSettings._iDisplayLength) + 1;
+
+                    if (currentPage == lastPage) return;
+                }
+
+                needToReloadTable = true;
+            }
+
+            var id = row1.find(".hide").html();
+
+            $.ajax({
+                url: "Detail/MoveItem",
+                datatype: "json",
+                type: "post",
+                data: {
+                    collectionName: "@typeName",
+                    identifier: id,
+                    upperIdentifier: '@(Model.UpperIdentifier)',
+                    detailViewGuid: '@(Model.DetailViewGuid)',
+                    up: up
+                },
+                context: this,
+                async: false,
+                success: function(result) {
+                    if (result.success) {
+
+                        if (needToReloadTable) {
+                            oTable_@(guid).fnReloadAjax("@Html.Raw(Model.Url)");
+                            return;
+                        }
+
+                        var data1 = oTable_@(guid).fnGetData(row1[0]);
+                        var data2 = oTable_@(guid).fnGetData(row2);
+
+                        oTable_@(guid).fnUpdate(data1, row2, undefined, false, false);
+                        oTable_@(guid).fnUpdate(data2, row1[0], undefined, false, false);
+
+                        $(row1[0]).tooltip({
+                            selector: '[data-toggle=tooltip]'
+                        });
+                        $(row2).tooltip({
+                            selector: '[data-toggle=tooltip]'
+                        });
+
+                        $(row1[0]).find(".editable-list-view-delete").click(function() {
+                            deleteItem@(guid)(this);
+                        });
+                        $(row2).find(".editable-list-view-delete").click(function() {
+                            deleteItem@(guid)(this);
+                        });
+
+                        $(row1[0]).find(".editable-list-view-unlink").click(function() {
+                            deleteItem@(guid)(this, true);
+                        });
+                        $(row2).find(".editable-list-view-unlink").click(function() {
+                            deleteItem@(guid)(this, true);
+                        });
+
+                        $(row1[0]).find(".editable-list-view-edit").click(function() {
+                            editItem@(guid)(this);
+                        });
+                        $(row2).find(".editable-list-view-edit").click(function() {
+                            editItem@(guid)(this);
+                        });
+
+                        $(row1[0]).find(".editable-list-view-up").click(function() {
+                            moveItem@(guid)(this, true);
+                        });
+                        $(row2).find(".editable-list-view-up").click(function() {
+                            moveItem@(guid)(this, true);
+                        });
+
+                        $(row1[0]).find(".editable-list-view-down").click(function() {
+                            moveItem@(guid)(this, false);
+                        });
+                        $(row2).find(".editable-list-view-down").click(function() {
+                            moveItem@(guid)(this, false);
+                        });
+
+
+                    } else {
+                        blackout.alert(result.error, "Error");
+                    }
+                },
+            });
+        }
+    }
+
+    @if (!string.IsNullOrEmpty(Model.ListViewSettings.JScriptFuctionPartial))
+    {
+        @Html.Partial(Model.ListViewSettings.JScriptFuctionPartial, listViewMetadataModel);
+    }
+</script>

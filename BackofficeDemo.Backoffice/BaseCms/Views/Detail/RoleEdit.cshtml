@@ -1,0 +1,161 @@
+﻿@using BaseCms.Security
+@model BaseCms.Model.DetailViewModel
+@{
+    var identifier = Model.Structure.Identifier.Id;
+    var collectionName = Model.Structure.Identifier.CollectionName;
+
+    var guid = Guid.NewGuid();
+    
+    var metaData = Model.DefaultDetailMetadata;
+    var data = Model.Structure.Data;
+    
+    string tab1 = Guid.NewGuid().ToString();
+    string tab2 = Guid.NewGuid().ToString();
+    string tab3 = Guid.NewGuid().ToString();
+    string tab4 = Guid.NewGuid().ToString();
+    string tab5 = Guid.NewGuid().ToString();
+
+    var nameProperty = metaData.Items.First(p => p.PropertyName == "Name");
+    var name = nameProperty.GetValue(data);
+
+    var getListPermissionsProperty = metaData.Items.First(p => p.PropertyName == "Permissions");
+    var permissions = getListPermissionsProperty.GetValue(data) as List<Permission>;
+    var getListPermissions = permissions.Where(p => p.GetType() == typeof (GetListPermission));
+
+    var insertObjectPermissionsProperty = metaData.Items.First(p => p.PropertyName == "InsertObjectPermissions");    
+    var insertObjectPermissions = permissions.Where(p => p.GetType() == typeof (InsertObjectPermission));
+
+    var updateObjectPermissionsProperty = metaData.Items.First(p => p.PropertyName == "UpdateObjectPermissions");
+    var updateObjectPermissions = permissions.Where(p => p.GetType() == typeof(UpdateObjectPermission));
+    
+    var deleteObjectPermissionsProperty = metaData.Items.First(p => p.PropertyName == "DeleteObjectPermissions");
+    var deleteObjectPermissions = permissions.Where(p => p.GetType() == typeof (DeleteObjectPermission));
+
+    var changeObjectStateIdPermissionsProperty = metaData.Items.First(p => p.PropertyName == "ChangeObjectStateIdPermissions");
+    var changeObjectStateIdPermissions = permissions.Where(p => p.GetType() == typeof(ChangeObjectStateIdPermission));
+
+    var externalSystemAccessPermissionsProperty = metaData.Items.First(p => p.PropertyName == "ExternalSystemAccessPermissions");
+    var externalSystemAccessPermissions = permissions.Where(p => p.GetType() == typeof (ExternalSystemAccessPermission));
+
+    var idProperty = metaData.Items.First(p => p.PropertyName == "Id");
+    var id = idProperty.GetValue(data);
+
+    var headerProperty = metaData.Items.FirstOrDefault(p => p.IsHeaderDisplayProperty);
+}
+
+<div class="page-header position-relative">
+    <h1>
+        @metaData.ListViewHeaderPlural
+        <small>
+            <i class="icon-double-angle-right"></i>
+            @(headerProperty == null ? String.Empty : headerProperty.GetValue(data))
+        </small>
+    </h1>
+</div>
+
+<script>
+    $("#@(guid.ToString())").bt_validate();
+    $(function() {
+        $('.selectAll').on('change', function () {
+            var checked = this.checked;
+            $(this).parent().find('input[class!=selectAll]').each(function () { this.checked = checked; });            
+        });
+    });
+</script>
+
+@using (Ajax.BeginForm("Save", null, new AjaxOptions(), new { id = guid.ToString() }))
+{
+    <div class="tabbable">
+        <ul class="nav nav-tabs padding-18">
+            <li class="active"><a href="#@tab1" data-toggle="tab">Home</a></li>
+            <li><a href="#@tab4" data-toggle="tab">@*Разрешения на изменение состояний*@Permits to change the state</a></li>
+            <li><a href="#@tab5" data-toggle="tab">@*Разрешения на использование внешних систем*@Permits to use external systems</a></li>
+            <li><a href="#@tab2" data-toggle="tab">@*Техническая информация*@Technical information</a></li>
+            <li><a href="#@tab3" data-toggle="tab">@*История*@History</a></li>
+        </ul>
+    </div>
+    <div class="tab-content no-border">
+        <div class="tab-pane active" id="@tab1">
+            <div class="row">
+                <div class="col-md-3 text-right">@nameProperty.Label:</div>
+                <div class="col-md-9 text-left">@(Html.EditorFor(m => name, nameProperty.ItemType.Template, new { MetaData = nameProperty, Identifier = identifier }))</div>
+            </div>
+            <div class="row">
+                <div class="col-md-3 text-right">@getListPermissionsProperty.Label:</div>
+                <table class="col-md-9">
+                    <tr>
+                        <td style="vertical-align: top;">
+                            <input type="checkbox" id="selectAll1" class="ace selectAll" />
+                            <label class="lbl" for="selectAll1">Select all</label>
+                            <div class="text-left">
+                                @(Html.EditorFor(m => getListPermissions, getListPermissionsProperty.ItemType.Template, new { MetaData = getListPermissionsProperty, Identifier = identifier, @class="span12" }))
+                            </div>
+                        </td>
+                        <td style="vertical-align: top;">
+                            <input type="checkbox" id="selectAll2" class="ace selectAll" />
+                            <label class="lbl" for="selectAll2">Select all</label>
+                            <div class="text-left">@(Html.EditorFor(m => insertObjectPermissions, insertObjectPermissionsProperty.ItemType.Template, new { MetaData = insertObjectPermissionsProperty, Identifier = identifier, @class="span12" }))</div>
+                        </td>
+                        <td style="vertical-align: top;">
+                            <input type="checkbox" id="selectAll3" class="ace selectAll" />
+                            <label class="lbl" for="selectAll3">Select all</label>
+                            <div class="text-left">@(Html.EditorFor(m => updateObjectPermissions, updateObjectPermissionsProperty.ItemType.Template, new { MetaData = updateObjectPermissionsProperty, Identifier = identifier, @class="span12" }))</div>
+                        </td>
+                        <td style="vertical-align: top;">
+                            <input type="checkbox" id="selectAll4" class="ace selectAll" />
+                            <label class="lbl" for="selectAll4">Select all</label>
+                            <div class="text-left">@(Html.EditorFor(m => deleteObjectPermissions, deleteObjectPermissionsProperty.ItemType.Template, new { MetaData = deleteObjectPermissionsProperty, Identifier = identifier, @class="span12" }))</div>
+                        </td>
+                    </tr>
+                </table>
+            </div>
+        </div>
+        <div class="tab-pane" id="@tab4">
+            <div class="row">
+                <div class="col-md-3 text-right">@getListPermissionsProperty.Label:</div>
+                <table class="col-md-9">
+                    <tr>
+                        <td style="vertical-align: top;">
+                            <input type="checkbox" id="selectAll5" class="ace selectAll" />
+                            <label class="lbl" for="selectAll5">Select all</label>
+                            <div class="text-left">
+                                @(Html.EditorFor(m => changeObjectStateIdPermissions, changeObjectStateIdPermissionsProperty.ItemType.Template, new { MetaData = changeObjectStateIdPermissionsProperty, Identifier = identifier, @class="span12" }))
+                            </div>
+                        </td>
+                    </tr>
+                </table>
+            </div>
+        </div>
+        <div class="tab-pane" id="@tab5">
+            <div class="row">
+                <div class="col-md-3 text-right">@getListPermissionsProperty.Label:</div>
+                <table class="col-md-9">
+                    <tr>
+                        <td style="vertical-align: top;">
+                            <input type="checkbox" id="selectAll6" class="ace selectAll" />
+                            <label class="lbl" for="selectAll6">Select all</label>
+                            <div class="text-left">
+                                @(Html.EditorFor(m => externalSystemAccessPermissions, externalSystemAccessPermissionsProperty.ItemType.Template, new { MetaData = externalSystemAccessPermissionsProperty, Identifier = identifier, @class="span12" }))
+                            </div>
+                        </td>
+                    </tr>
+                </table>
+            </div>
+        </div>
+        <div class="tab-pane" id="@tab2">
+            <div class="row">
+                <div class="col-md-3 text-right">@idProperty.Label:</div>
+                <div class="col-md-9 text-left">@(Html.EditorFor(m => id, "String", new { MetaData = idProperty }))</div>
+            </div>
+        </div>
+         <div class="tab-pane" id="@tab3">
+            <div class="row">
+                <div class="span12 text-left">@(Html.DisplayFor(m => tab3, "History", new { Model.Structure.Identifier  }))</div>
+            </div>
+        </div>
+    </div>
+            
+    <input type="hidden" id="collectionName" name="collectionName" value="@collectionName" />
+    <input type="hidden" id="identifier" name="identifier" value="@identifier" />
+    Html.RenderPartial("FormActions", Model.Buttons);
+}

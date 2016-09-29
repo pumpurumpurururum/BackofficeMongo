@@ -1,0 +1,8 @@
+﻿@using BaseCms.Model
+@{
+    var identifier = ViewBag.Identifier as ObjectCollectionWithId;
+}
+
+<div class="form-horizontal editable-collection-control">
+    @Html.Action("History", "Detail", new { collectionName = identifier.CollectionName, identifier = identifier.Id })
+</div>

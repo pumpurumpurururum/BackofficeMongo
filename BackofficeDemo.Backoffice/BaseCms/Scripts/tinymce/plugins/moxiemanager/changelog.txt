@@ -1,0 +1,55 @@
+Version 1.1 (2013-09-10)
+	Added new infinite scroll feature for handling of large ammout of files.
+	Optimized thumbnail loading performance by loading thumbs directly when possible.
+	Fixed so thumbnails gets loaded directly from remote file systems like S3 when possible.
+	Fixed bug where closing a window in fullscreen mode would produce window scrollbars.
+	Fixed issue where AmazonS3 wouldn't list more than 1000 file/folders, limit set to 5000.
+Version 1.0.6 (2013-08-21)
+	Added new feature and option, thumbnail.mode, if set to "crop" will make thumbnails using crop instead of default resize.
+	Fixed bug where filter feature would throw js exception and not enable users to select files.
+	Fixed bug where the throbber for long operations wasn't activated correctly.
+	Fixed bug with S3 Plugin where files got Content-Disposition set when not needed.
+Version 1.0.5 (2013-08-06)
+	Added advanced debugging option, set general.debug to true and access /api.ashx?action=debug
+	Fixed bug where it would throw an Environment exception on Medium trust when accessing the temp directory.
+	Fixed bug where UNC paths wasn't handled handled properly.
+	Fixed bug where fullscreen mode wouldn't cover the whole viewport.
+	Fixed bug where it wasn't possible to select files that didn't match a valid mime type.C:\inetpub\wwwroot\moxiemanager-net\src\MoxieManager.Web.UI\changelog.txt
+	Fixed bug where images with 1 pixel width/height wouldn't scale down to proper thumbnails.
+	Fixed bug where save image didn't work on IE 9 since the Flash XHR fallback wasn't loading properly.
+	Fixed so you can override the auth user name from using the ExternalAuthenticator.
+Version 1.0.4 (2013-07-18)
+	Fixed bug where it wouldn't properly parse URLs without protocol like //domain/path.
+	Fixed bug where username in the session authenticator wouldn't update the user instance.
+	Fixed bug where all urls would get converted when having mixed file systems.
+	Fixed bug where urls wasn't properly produced when inserting files from AmazonS3.
+	Fixed bug where moving/renaming/copying images didn't move/rename/copy the thumbnail file as well.
+	Fixed bug with spaces not working on file names in Amazon S3.
+	Fixed bug where contextmenu would be positioned at an incorrect postion when scrolling the page.
+	Fixed so it's possible to edit any plain text file not just txt, html etc.
+	Fixed so the thumbnail_url meta item is properly populated on non local file systems.
+Version 1.0.3 (2013-06-26)
+	Fixed bug where detecting site wwwroot was case sensitive.
+	Fixed bug where editing of images with uppercase extensions didn't work.
+	Added view file support for non image types such as PDF and HTML files.
+	Added keep alive heartbeat logic to prevent session timeouts.
+Version 1.0.2 (2013-06-13)
+	Added new proxy option to Amazon S3 buckets (host:port), mostly for internal debugging.
+	Fixed bug with Apply button in image edit not working properly.
+	Fixed issue with Quota plugin running on remote filesystems.
+	Fixed issue with Amazon S3 integration causing connection errors.
+Version 1.0.1 (2013-06-11)
+	Added new sort_by and sort_order options to control default sorting.
+	Added new moxiemanager_<type>_settings option to TinyMCE plugin.
+	Fixed bug where SessionAuthenticator would produce exception on casting session key to bool.
+	Fixed bug where AutoFormat %f included the extension.
+	Fixed bug where ExternalAuthenticator would return false even if authorized.
+	Fixed bug where the config wasn't extended properly.
+	Fixed bug where config variables wasn't properly replaced.
+	Fixed bug where language pack wouldn't load when used with TinyMCE.
+	Fixed bug where sorting of dates could produce strange results.
+	Fixed bug where mc_access files couldn't include equal characters in it's values.
+	Fixed bug where MoxieManager wouldn't provide an error for urls on files outside the wwwroot.
+	Fixed issue with file extension not being automatically set on files on save in image editor.
+Version 1.0 (2013-06-05)
+	First public version of MoxieManager.NET.

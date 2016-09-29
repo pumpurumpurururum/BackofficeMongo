@@ -1,0 +1,9 @@
+﻿@model bool?
+@if (Model.HasValue && Model.Value)
+{
+    <span class="text-success">Yes</span>
+}
+else
+{
+    <span class="text-error">No</span>
+}

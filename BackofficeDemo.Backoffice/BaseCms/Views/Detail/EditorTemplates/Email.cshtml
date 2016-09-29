@@ -1,0 +1,49 @@
+﻿@using BaseCms.Views.Detail
+
+@{
+    var additionalClass = ViewBag.@class ?? "col-xs-1 col-sm-1";
+
+    var metaData = (DetailMetadataItem)ViewBag.MetaData;
+
+    var controlId = "_CMSScopeName_" + metaData.PropertyName;
+
+    var htmlValidationAttribute = BootstrapValidationHelper.GetValidationHtmlAttribute(metaData.ValidationAttributes);
+    
+    var maxLength = metaData.MaxLength;
+    
+    int? collectionIndex = ViewBag.CollectionIndex;
+    string propertyName = collectionIndex.HasValue
+                              ? String.Format("{0}.{1}[{2}]", ViewBag.CollectionName, metaData.PropertyName, collectionIndex.Value)
+                              : metaData.PropertyName;
+
+    var decodedText = HttpUtility.HtmlDecode(ViewData.TemplateInfo.FormattedModelValue.ToString());
+}
+@if (metaData.IsKey)
+{
+    <p class="centering">@ViewData.TemplateInfo.FormattedModelValue</p>
+    return;
+}
+
+@if (metaData.IsEditable)
+{
+    if (maxLength > 0)
+    {
+        @Html.TextBox(propertyName, decodedText, new {@class = additionalClass, validate = htmlValidationAttribute, id = controlId, maxLength})
+        <text>
+            <script>
+                $('#@(controlId)').maxlength({
+                    alwaysShow: true,
+                    placement: 'bottom-right'
+                });
+            </script>
+        </text>
+    }
+    else
+    {
+        @Html.TextBox(propertyName, decodedText, new {@class = additionalClass, validate = htmlValidationAttribute, id = controlId})
+    }
+}
+else
+{
+    @Html.TextBox(propertyName, decodedText, new { @class = additionalClass, @readonly = "readonly", id=controlId })
+}

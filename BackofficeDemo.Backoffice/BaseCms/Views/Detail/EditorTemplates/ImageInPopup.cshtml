@@ -1,0 +1,167 @@
+﻿@using BaseCms.Common.FileUploader.Interfaces
+@using BaseCms.DependencyResolution
+@using BaseCms.Views.Detail
+@{
+    int? collectionIndex = ViewBag.CollectionIndex;
+    string propertyName = collectionIndex.HasValue
+                              ? String.Format("{0}.{1}[{2}]", ViewBag.CollectionName, ViewBag.MetaData.PropertyName, collectionIndex.Value)
+                              : ViewBag.MetaData.PropertyName as string;
+    var imageMetadata = ViewBag.MetaData.ImageMetadata as ImageMetadata;
+    var guid = Guid.NewGuid().ToString();
+
+    var ratio = String.Empty;
+    int width = 0, height = 0;
+    var fileSuffix = String.Empty;
+    if (imageMetadata != null)
+    {
+        ratio = imageMetadata.Ratio;
+        width = imageMetadata.Width;
+        height = imageMetadata.Height;
+        fileSuffix = imageMetadata.FileSuffix;
+    }
+
+    var value = ViewData.TemplateInfo.FormattedModelValue as string;
+
+    var resultSrc = "/Image/";
+    var uploader = IoC.Container.GetInstance<IFileManagerWithTemporaryStorage>();
+
+    var valueForTemporary = Path.GetFileName(value)?.Replace("_cropped.", ".");
+    if (uploader.ExistsTemporary(valueForTemporary))
+    {
+        resultSrc = "/Image/Temp/?path=" + valueForTemporary;
+    } else if (uploader.Exists(value))
+    {
+        resultSrc = "/Image/?path=" + value + (String.IsNullOrEmpty(fileSuffix) ? String.Empty : "&fileSuffix=" + fileSuffix);
+    }
+}
+
+<input type="hidden" name="@propertyName" id="@guid-result" value="@ViewData.TemplateInfo.FormattedModelValue" />
+    <div id="@guid-container">
+        <img src="" class="img-responsive" />
+    </div>
+<script>
+    $(document).ready(function() {
+
+        var scaleCmsScopeName = 1;
+        var locationCmsScopeName = '@Html.Raw(resultSrc.Replace('\\', '/'))';
+        var temporaryLocationCmsScopeName = '@valueForTemporary';
+
+        $('#@guid-container').find('img').attr('src', locationCmsScopeName).load(function() {
+
+            var cWidth = 394;
+
+            var width = @width;
+            var height = @height;
+
+            var imageWidth = this.naturalWidth;
+            var imageHeight = this.naturalHeight;
+
+            if (imageWidth > cWidth) {
+                scaleCmsScopeName = cWidth / imageWidth;
+            }
+
+            if (imageWidth < width || imageHeight < height) {
+            }
+
+            if (imageWidth < width) {
+                var koef2 = imageWidth / width;
+                width = imageWidth;
+                height = height * koef2;
+            } else if (imageHeight < height) {
+                var koef3 = imageHeight / height;
+                height = imageHeight;
+                width = width * koef3;
+            }
+
+            var defaultWidth = Math.max(imageWidth, width) * scaleCmsScopeName - 10;
+            var defaultHeight = Math.max(imageHeight, height) * scaleCmsScopeName - 10;
+
+            if ((width > 0) && (height > 0)) {
+                var ratio = height / width;
+                defaultHeight = defaultWidth * ratio;
+            }
+
+            var minWidth = width * scaleCmsScopeName;
+            var minHeight = height * scaleCmsScopeName;
+
+            $(this).imgAreaSelect({
+                handles: true,
+                show: true,
+                x1: 1,
+                x2: defaultWidth,
+                y1: 1,
+                y2: defaultHeight,
+                minWidth: minWidth,
+                minHeight: minHeight,
+                zIndex: 2013,
+                aspectRatio: "@ratio"
+            });
+        });
+
+        var cropper;
+        
+        $(".popup-edit-ok").click(function(ev) {
+
+            ev.preventDefault();
+            ev.stopPropagation();
+
+            cropper = $("#@guid-container")
+                .children("img")
+                .imgAreaSelect({ instance: true });
+            var selection = cropper.getSelection();
+
+            if (isNaN(selection.x1)) return;
+
+            var x1 = Math.floor(selection.x1 / scaleCmsScopeName);
+            var x2 = Math.floor(selection.x2 / scaleCmsScopeName);
+            var y1 = Math.floor(selection.y1 / scaleCmsScopeName);
+            var y2 = Math.floor(selection.y2 / scaleCmsScopeName);
+            var resize = @((!imageMetadata.FreeSize).ToString().ToLowerInvariant());
+            blackout.start();
+
+            $.ajax({
+                url: "/ImageUpload/Crop",
+                type: "POST",
+                datatype: "json",
+                async: false,
+                data: {
+                    path: temporaryLocationCmsScopeName,
+                    x1: x1,
+                    x2: x2,
+                    y1: y1,
+                    y2: y2,
+                    width: @width,
+                    height: @height,
+                    resize: resize,
+                    fileSuffix: '_cropped'
+                },
+                success: function(response) {
+                    if (response.success) {
+                        $("#@guid-result").val(temporaryLocationCmsScopeName.replace('.', '_cropped.'));
+                        
+                        blackout.end();
+                    } else {
+                        blackout.end();
+                        blackout.alert(response.error, "Error");
+                    }
+                },
+                error: function() {
+                    blackout.end();
+                    blackout.alert("Server error");
+                }
+            });
+        });
+
+        $("#@guid-remove").click(function() {
+            if (cropper != undefined) cropper.cancelSelection();
+
+            $("#@guid-remove").removeClass('ace-icon');
+            $("#@guid-remove").removeClass('fa');
+            $("#@guid-remove").removeClass('fa-times');
+            $("#@guid-preview img").attr("src", '');
+            $("#@guid-result").val('');
+        });
+
+    });
+
+</script>

@@ -1,0 +1,51 @@
+﻿@using System.Globalization
+@using BaseCms.Common.Validation.Attributes.Base
+@using BaseCms.Views.Detail
+@model DateTime?
+@{
+    var metaData = (DetailMetadataItem)ViewBag.MetaData;
+    var htmlValidationAttribute = BootstrapValidationHelper.GetValidationHtmlAttribute(ViewBag.MetaData.ValidationAttributes as List<ValidationAttribute>);
+    var guid = Guid.NewGuid();
+    var formattedValue = (Model != null)
+                             ? !String.IsNullOrEmpty((string)ViewBag.MetaData.Format)
+                                   ? Model.Value.ToString((string) ViewBag.MetaData.Format)
+                                   : Model.Value.ToString("dd.MM.yyyy")
+                             : String.Empty;
+}
+
+@if (metaData.IsEditable)
+{
+    <script>
+        $('#datepicker@(guid)').datepicker({ autoclose: true, language: 'ru' }).on('changeDate', function(ev) {
+            $('#' + "_CMSScopeName_" + '@ViewBag.MetaData.PropertyName').blur();
+        });
+
+        $('#' + "_CMSScopeName_" + '@ViewBag.MetaData.PropertyName').on("blur", function() {
+            if ((this.value != "") && (!validateDate(this.value))) {
+                this.value = new Date();
+                $('#datepicker@(guid)').datepicker('setValue', '');
+                return;
+            }
+
+            var tooltip = $('#datepicker@(guid)').find('div:first');
+
+            if (tooltip.position()) {
+                var tooltipLeft = tooltip.position().left + 25;
+                tooltip.css('left', tooltipLeft + 'px');
+            }
+        });
+
+        function validateDate(dateStr) {
+            return dateStr.match("(0[1-9]|[12][0-9]|3[01])[ \.-](0[1-9]|1[012])[ \.-](19|20|)[0-9][0-9]");
+        }
+    </script>
+
+    <div class="input-append date" id="datepicker@(guid)" data-date="@Model" data-date-format="dd.mm.yyyy">
+        @Html.TextBox((string) ViewBag.MetaData.PropertyName, formattedValue, new {@class = "text-box single-line", id = "_CMSScopeName_" + ViewBag.MetaData.PropertyName, validate = htmlValidationAttribute})
+        <span class="add-on"><i class="icon-calendar"></i></span>
+    </div>
+}
+else
+{
+    <p class="centering" id="_CMSScopeName_@ViewBag.MetaData.PropertyName">@formattedValue.ToString(CultureInfo.InvariantCulture)</p>
+}
